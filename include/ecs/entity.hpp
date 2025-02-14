@@ -3,79 +3,55 @@
 #include <cstdint>
 #include "../common_types.hpp"
 #include <vector>
+#include "identifier.hpp"
+#include "interface.hpp"
 
 namespace snek
 {
     namespace core
     {
 
-        template <typename SizeT = u64>
-        inline auto GenerateEntityID() noexcept
-        {
-            static SizeT new_id = 0;
-            SizeT old = new_id;
-            new_id++;
-            return old;
-        };
-
-        template <typename SizeT = u64>
-        struct EntityIdentifier
-        {
-            typedef SizeT size_type;
-            size_type id;
-            EntityIdentifier() : id(GenerateEntityID<size_type>()) {};
-        };
-
-        class Entity : public EntityIdentifier<u64>
+        class Entity : public BaseEntity
         {
             using df_size_t = u64;
             std::string tag;
-            std::uint64_t cmp_mask; // bit set of components given its id;
+            u64 cmp_mask; // bit set of components given its id;
+            std::vector<BaseComponent *> components;
 
         public:
             Entity() {};
+
             Entity(const Entity &other) {};
             Entity(Entity &&other) {};
             Entity(const std::string &tag) {};
             inline df_size_t GetID() const
             {
-                return this->id;
+                return GenerateEntityID<df_size_t>();
+            };
+
+            template <typename Component>
+            bool HasComponent()
+            {
+                u64 mask = (1 << GenerateComponentTypeID<Component>() - 1);
+                return ((cmp_mask & mask) == mask);
+            };
+
+            template <typename Component, typename... Args, typename = std::enable_if_t<std::is_base_of_v<BaseComponent, Component>>>
+            Component &AddComponent(Args &&...args)
+            {
+                u64 mask = (1 << GenerateComponentTypeID<Component>() - 1);
+                Component *c = new Component(std::forward<Args>(args)...);
+                components.push_back(static_cast<Component *>(c));
+                cmp_mask |= mask;
+                return *c;
+            };
+
+            template <typename Component, typename = std::enable_if_t<std::is_base_of_v<BaseComponent, Component>>>
+            void RemoveComponent()
+            {
+                cmp_mask &= ~((1 << GenerateComponentTypeID<Component>()) - 1);
             };
             ~Entity() {};
-        };
-
-        template <typename Component>
-        size_t GenerateComponentTypeID()
-        {
-            return typeid(Component).hash_code();
-        };
-
-        template <typename Component>
-        struct ComponentIndentifier
-        {
-            typedef size_t size_type;
-            size_type id;
-            ComponentIndentifier() : id(GenerateComponentTypeID<Component>()) {};
-        };
-
-        template <typename Component>
-        class BaseComponent : public ComponentIndentifier<Component>
-        {
-            using df_size_t = u64;
-            Entity *owner;
-
-        public:
-            BaseComponent() {};
-            df_size_t GetComponentTypeID() const
-            {
-                return this->id;
-            };
-
-            ~BaseComponent() {};
-        };
-
-        class A : public BaseComponent<A>
-        {
         };
 
         // eventually the goal is to allow client side users of this library to use customizable ecs types
