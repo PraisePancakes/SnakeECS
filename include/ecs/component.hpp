@@ -19,9 +19,9 @@ namespace snek
 
         public:
             Component() {};
-            df_size_t GetComponentTypeID() const
+            df_size_t GetComponentHashCode() const
             {
-                return GenerateComponentTypeID<C>();
+                return GenerateComponentHashCode<C>();
             };
 
             ~Component() {};

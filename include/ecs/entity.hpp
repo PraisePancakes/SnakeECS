@@ -5,6 +5,7 @@
 #include <vector>
 #include "identifier.hpp"
 #include "interface.hpp"
+#include <unordered_map>
 
 namespace snek
 {
@@ -16,7 +17,7 @@ namespace snek
             using df_size_t = u64;
             std::string tag;
             u64 cmp_mask; // bit set of components given its id;
-            std::vector<BaseComponent *> components;
+            std::unordered_map<size_t, BaseComponent *> components;
 
         public:
             Entity() {};
@@ -32,16 +33,21 @@ namespace snek
             template <typename Component>
             bool HasComponent()
             {
-                u64 mask = (1 << GenerateComponentTypeID<Component>() - 1);
+                u64 mask = (GenerateComponentHashCode<Component>());
                 return ((cmp_mask & mask) == mask);
             };
 
             template <typename Component, typename... Args, typename = std::enable_if_t<std::is_base_of_v<BaseComponent, Component>>>
             Component &AddComponent(Args &&...args)
             {
-                u64 mask = (1 << GenerateComponentTypeID<Component>() - 1);
+
+                u64 mask = (GenerateComponentHashCode<Component>());
+                if (HasComponent<Component>())
+                {
+                    return *((Component *)components[mask]);
+                }
                 Component *c = new Component(std::forward<Args>(args)...);
-                components.push_back(static_cast<Component *>(c));
+                components[mask] = static_cast<Component *>(c);
                 cmp_mask |= mask;
                 return *c;
             };
@@ -49,7 +55,7 @@ namespace snek
             template <typename Component, typename = std::enable_if_t<std::is_base_of_v<BaseComponent, Component>>>
             void RemoveComponent()
             {
-                cmp_mask &= ~((1 << GenerateComponentTypeID<Component>()) - 1);
+                cmp_mask &= ~(GenerateComponentHashCode<Component>());
             };
             ~Entity() {};
         };

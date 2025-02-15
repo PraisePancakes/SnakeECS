@@ -17,7 +17,7 @@ namespace snek
         };
 
         template <typename Component, typename = std::enable_if_t<std::is_base_of_v<BaseComponent, Component>>>
-        size_t GenerateComponentTypeID()
+        size_t GenerateComponentHashCode()
         {
             return typeid(Component).hash_code();
         };
