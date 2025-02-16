@@ -1,12 +1,13 @@
 #pragma once
 #include "../common_types.hpp"
-#include "component.hpp"
+#include "../ecs/component.hpp"
 
 namespace snek
 {
-    namespace core
+    class Component;
+
+    namespace uuid
     {
-        class Component;
         template <typename SizeT = u64>
         inline auto GenerateEntityID() noexcept
         {
@@ -21,6 +22,6 @@ namespace snek
         {
             return typeid(C).hash_code();
         };
-
     }
+
 }

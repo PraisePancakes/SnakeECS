@@ -3,7 +3,6 @@
 #include "../include/ecs/entity.hpp"
 
 using namespace snek;
-using namespace core;
 
 int main(int argc, char **argv)
 {
