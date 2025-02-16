@@ -15,15 +15,15 @@ namespace snek
         {
             using df_uuid_t = u64;
             std::string tag;
-            u64 cmp_mask; // bit set of components given its id;
+            u64 cmp_mask; // bit mask of components
             std::unordered_map<size_t, Component *> components;
 
         public:
-            Entity() {};
+            Entity() : tag(), cmp_mask(), components() {};
+            Entity(const Entity &other) : tag(other.tag), cmp_mask(), components(other.components) {};
+            Entity(Entity &&other) : tag(other.tag), cmp_mask(), components(other.components) {};
+            Entity(const std::string &tag) : tag(tag), cmp_mask(), components() {};
 
-            Entity(const Entity &other) {};
-            Entity(Entity &&other) {};
-            Entity(const std::string &tag) {};
             inline df_uuid_t GetID() const
             {
                 return GenerateEntityID<df_uuid_t>();

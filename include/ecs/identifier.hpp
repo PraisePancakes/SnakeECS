@@ -1,5 +1,6 @@
 #pragma once
 #include "../common_types.hpp"
+#include "component.hpp"
 
 namespace snek
 {
