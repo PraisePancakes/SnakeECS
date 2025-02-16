@@ -1,12 +1,11 @@
-
 #pragma once
 #include "../common_types.hpp"
-#include "interface.hpp"
 
 namespace snek
 {
     namespace core
     {
+        class Component;
         template <typename SizeT = u64>
         inline auto GenerateEntityID() noexcept
         {
@@ -16,10 +15,10 @@ namespace snek
             return old;
         };
 
-        template <typename Component, typename = std::enable_if_t<std::is_base_of_v<BaseComponent, Component>>>
+        template <typename C, typename = std::enable_if_t<std::is_base_of_v<Component, C>>>
         size_t GenerateComponentHashCode()
         {
-            return typeid(Component).hash_code();
+            return typeid(C).hash_code();
         };
 
     }

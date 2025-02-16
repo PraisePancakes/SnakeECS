@@ -5,29 +5,22 @@
 #include <vector>
 #include "identifier.hpp"
 #include "entity.hpp"
-#include "interface.hpp"
 
 namespace snek
 {
     namespace core
     {
-        template <typename C>
-        class Component : public BaseComponent
+        class Component
         {
-            using df_size_t = u64;
-            BaseEntity *owner;
+            using df_hash_t = u64;
+            Entity *owner;
 
         public:
             Component() {};
-            df_size_t GetComponentHashCode() const
-            {
-                return GenerateComponentHashCode<C>();
-            };
-
             ~Component() {};
         };
 
-        class A : public Component<A>
+        class A : public Component
         {
         };
         // eventually the goal is to allow client side users of this library to use customizable ecs types

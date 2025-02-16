@@ -6,7 +6,7 @@
 using namespace snek;
 using namespace core;
 
-class B : public Component<B>
+class B : public Component
 {
 
 public:

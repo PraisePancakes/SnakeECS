@@ -4,20 +4,19 @@
 #include "../common_types.hpp"
 #include <vector>
 #include "identifier.hpp"
-#include "interface.hpp"
 #include <unordered_map>
 
 namespace snek
 {
     namespace core
     {
-
-        class Entity : public BaseEntity
+        class Component;
+        class Entity
         {
-            using df_size_t = u64;
+            using df_uuid_t = u64;
             std::string tag;
             u64 cmp_mask; // bit set of components given its id;
-            std::unordered_map<size_t, BaseComponent *> components;
+            std::unordered_map<size_t, Component *> components;
 
         public:
             Entity() {};
@@ -25,37 +24,39 @@ namespace snek
             Entity(const Entity &other) {};
             Entity(Entity &&other) {};
             Entity(const std::string &tag) {};
-            inline df_size_t GetID() const
+            inline df_uuid_t GetID() const
             {
-                return GenerateEntityID<df_size_t>();
+                return GenerateEntityID<df_uuid_t>();
             };
 
-            template <typename Component>
+            template <typename C>
             bool HasComponent()
             {
-                u64 mask = (GenerateComponentHashCode<Component>());
-                return ((cmp_mask & mask) == mask);
+                static_assert(std::is_base_of_v<Component, C>, "Custom component must be inherit from snek::core::Component");
+                u64 hash = (GenerateComponentHashCode<C>());
+                return ((cmp_mask & hash) == hash);
             };
 
-            template <typename Component, typename... Args, typename = std::enable_if_t<std::is_base_of_v<BaseComponent, Component>>>
-            Component &AddComponent(Args &&...args)
+            template <typename C, typename... Args>
+            C &AddComponent(Args &&...args)
             {
-
-                u64 mask = (GenerateComponentHashCode<Component>());
-                if (HasComponent<Component>())
+                static_assert(std::is_base_of_v<Component, C>, "Custom component must be inherit from snek::core::Component");
+                u64 hash = (GenerateComponentHashCode<C>());
+                if (HasComponent<C>())
                 {
-                    return *((Component *)components[mask]);
+                    return *((C *)components[hash]);
                 }
-                Component *c = new Component(std::forward<Args>(args)...);
-                components[mask] = static_cast<Component *>(c);
-                cmp_mask |= mask;
+                C *c = new C(std::forward<Args>(args)...);
+                components[hash] = static_cast<C *>(c);
+                cmp_mask |= hash;
                 return *c;
             };
 
-            template <typename Component, typename = std::enable_if_t<std::is_base_of_v<BaseComponent, Component>>>
+            template <typename C>
             void RemoveComponent()
             {
-                cmp_mask &= ~(GenerateComponentHashCode<Component>());
+                static_assert(std::is_base_of_v<Component, C>, "Custom component must be inherit from snek::core::Component");
+                cmp_mask &= ~(GenerateComponentHashCode<C>());
             };
             ~Entity() {};
         };
