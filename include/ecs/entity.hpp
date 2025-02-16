@@ -12,24 +12,25 @@ namespace snek
     class Component;
     class Entity
     {
-        using df_uuid_t = u64;
+        using size_type = u64;
         std::string tag;
         u64 cmp_mask; // bit mask of components
         std::unordered_map<size_t, Component *> components;
+        bool is_alive;
 
     public:
-        Entity() : tag(), cmp_mask(), components() {};
-        Entity(const Entity &other) : tag(other.tag), cmp_mask(), components(other.components) {};
-        Entity(Entity &&other) : tag(other.tag), cmp_mask(), components(other.components) {};
-        Entity(const std::string &tag) : tag(tag), cmp_mask(), components() {};
+        Entity() : tag(), cmp_mask(), components(), is_alive(true) {};
+        Entity(const Entity &other) : tag(other.tag), cmp_mask(), components(other.components), is_alive(other.is_alive) {};
+        Entity(Entity &&other) : tag(other.tag), cmp_mask(), components(other.components), is_alive(other.is_alive) {};
+        Entity(const std::string &tag) : tag(tag), cmp_mask(), components(), is_alive(true) {};
 
-        inline df_uuid_t GetID() const
+        [[nodiscard]] inline size_type GetID() const noexcept
         {
-            return uuid::GenerateEntityID<df_uuid_t>();
+            return uuid::GenerateEntityID<size_type>();
         };
 
         template <typename C>
-        bool HasComponent()
+        [[nodiscard]] bool HasComponent() noexcept
         {
             static_assert(std::is_base_of_v<Component, C>, "Custom component must be inherit from snek::core::Component");
             u64 hash = (uuid::GenerateComponentHashCode<C>());
@@ -48,8 +49,14 @@ namespace snek
             C *c = new C(std::forward<Args>(args)...);
             components[hash] = static_cast<C *>(c);
             cmp_mask |= hash;
+            c->owner = this;
             return *c;
         };
+
+        [[nodiscard]] bool IsAlive() const
+        {
+            return this->is_alive;
+        }
 
         template <typename C>
         void RemoveComponent()

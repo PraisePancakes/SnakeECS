@@ -4,13 +4,11 @@
 
 using namespace snek;
 
+
 int main(int argc, char **argv)
 {
     Entity e;
+    e.AddComponent<A>();
 
-    A b = e.AddComponent<A>();
-    std::cout << std::boolalpha << e.HasComponent<A>() << std::endl;
-    e.RemoveComponent<A>();
-    std::cout << std::boolalpha << e.HasComponent<A>() << std::endl;
     return 0;
 }

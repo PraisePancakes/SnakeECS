@@ -11,16 +11,17 @@ namespace snek
 
     class Component
     {
-        using df_hash_t = u64;
-        Entity *owner;
+        using hash_type = u64;
 
     public:
+        Entity *owner;
         Component() {};
         ~Component() {};
     };
 
     class A : public Component
     {
+        int x;
     };
     // eventually the goal is to allow client side users of this library to use customizable ecs types
     //  so long as they inherit these types from the basis of this library : Entity , Component , Systems
