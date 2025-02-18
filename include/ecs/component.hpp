@@ -8,7 +8,7 @@
 
 namespace snek
 {
-
+    class Entity;
     class Component
     {
         using hash_type = u64;

@@ -10,6 +10,7 @@ namespace snek
 {
 
     class Component;
+
     class Entity
     {
         using size_type = u64;
@@ -28,6 +29,16 @@ namespace snek
         {
             return uuid::GenerateEntityID<size_type>();
         };
+
+        [[nodiscard]] inline size_type GetComponentMask() const noexcept
+        {
+            return cmp_mask;
+        }
+
+        [[nodiscard]] inline const std::string &GetTag() const noexcept
+        {
+            return tag;
+        }
 
         template <typename C>
         [[nodiscard]] bool HasComponent() noexcept

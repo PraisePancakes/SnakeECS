@@ -14,7 +14,7 @@ namespace snek
         World(const World &o) : world_mask(o.world_mask), entities(o.entities), running(true) {};
         World(World &&o) : world_mask(o.world_mask), entities(std::move(o.entities)), running(true) {};
         inline void WorldPause() { running = false; };
-        
+
         ~World() {
 
         };
