@@ -6,7 +6,15 @@ class A
 };
 int main(int argc, char **argv)
 {
-    static_assert(snek::internal::has_cmp_mask_v<snek::Entity, u64>, "Entity must have cmp_mask");
-    static_assert(snek::internal::has_tag_v<snek::Entity, std::string>, "Entity must have cmp_mask");
+
+    // tag must be std::string so resulting type is void;
+    static_assert(std::is_void_v<snek::internal::has_tag<snek::Entity, u64>::tag_type>, "has tag");
+    // tag must be std::string so resulting type is std::string;
+    static_assert(!std::is_void_v<snek::internal::has_tag<snek::Entity, std::string>::tag_type>, "has tag");
+    static_assert(std::is_same_v<snek::internal::has_tag<snek::Entity, std::string>::tag_type, std::string>, "is string type");
+    static_assert(!snek::internal::has_tag<A, std::string>::value, "doesnt have tag");
+    static_assert(snek::internal::has_entity_traits<snek::Entity>::value, "has traits");
+    static_assert(!snek::internal::has_entity_traits<A>::value, "doesnt have traits");
+
     return 0;
 }

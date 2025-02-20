@@ -13,9 +13,14 @@ namespace snek
 
     class Entity
     {
+    public:
+        using mask_t = u64;
+        using tag_t = std::string;
         using size_type = u64;
-        std::string tag;
-        u64 cmp_mask; // bit mask of components
+
+    protected:
+        tag_t tag;
+        mask_t cmp_mask; // bit mask of components
         std::unordered_map<size_t, Component *> components;
         bool is_alive;
 
@@ -35,7 +40,7 @@ namespace snek
             return cmp_mask;
         }
 
-        [[nodiscard]] inline const std::string &GetTag() const noexcept
+        [[nodiscard]] inline const tag_t &GetTag() const noexcept
         {
             return tag;
         }
