@@ -35,7 +35,7 @@ namespace snek
             return uuid::GenerateEntityID<size_type>();
         };
 
-        [[nodiscard]] inline size_type GetComponentMask() const noexcept
+        [[nodiscard]] inline mask_t GetComponentMask() const noexcept
         {
             return cmp_mask;
         }

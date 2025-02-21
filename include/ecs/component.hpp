@@ -19,10 +19,6 @@ namespace snek
         ~Component() {};
     };
 
-    class A : public Component
-    {
-        int x;
-    };
     // eventually the goal is to allow client side users of this library to use customizable ecs types
     //  so long as they inherit these types from the basis of this library : Entity , Component , Systems
 
