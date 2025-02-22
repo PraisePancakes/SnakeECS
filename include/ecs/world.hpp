@@ -1,13 +1,16 @@
 #pragma once
 #include "entity.hpp"
-#include "unordered_map"
+#include <unordered_map>
+#include <map>
 namespace snek
 {
+
+    template <typename Alloc = std::allocator<Entity>>
     class World
     {
         u64 world_mask;
         std::unordered_map<std::string, std::vector<Entity *>> entities_by_tag;
-        std::unordered_map<u64, Entity *> entities_by_id;
+        std::map<u64, Entity *> entities_by_id;
         bool running;
 
     public:
