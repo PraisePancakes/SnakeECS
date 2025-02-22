@@ -11,7 +11,7 @@ namespace snek
         bool running;
 
     public:
-        World() : world_mask(), entities_by_tag(), entities_by_id(), running(true) {};
+        World() : world_mask(0), entities_by_tag(), entities_by_id(), running(true) {};
         World(const World &o) : world_mask(o.world_mask), entities_by_tag(o.entities_by_tag), entities_by_id(o.entities_by_id), running(true) {};
         World(World &&o) : world_mask(o.world_mask), entities_by_tag(std::move(o.entities_by_tag)), entities_by_id(std::move(o.entities_by_id)), running(true) {};
         inline void WorldPause() { running = false; };
@@ -33,9 +33,9 @@ namespace snek
             return *e;
         }
 
-        [[nodsicard]] bool has_entity(Entity *e) const noexcept
+        [[nodsicard]] bool has_entity(const Entity &e) const noexcept
         {
-            return ((world_mask & e->GetID()) == e->GetID());
+            return ((world_mask & e.GetID()) == e.GetID());
         };
         [[nodsicard]] bool has_entity(u64 id) const noexcept
         {

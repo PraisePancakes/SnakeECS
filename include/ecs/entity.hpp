@@ -22,16 +22,17 @@ namespace snek
         mask_t cmp_mask; // bit mask of components
         std::unordered_map<size_t, Component *> components;
         bool is_alive;
+        size_t _id;
 
     public:
-        Entity() : tag(), cmp_mask(), components(), is_alive(true) {};
-        Entity(const Entity &other) : tag(other.tag), cmp_mask(), components(other.components), is_alive(other.is_alive) {};
-        Entity(Entity &&other) : tag(other.tag), cmp_mask(), components(other.components), is_alive(other.is_alive) {};
-        Entity(const std::string &tag) : tag(tag), cmp_mask(), components(), is_alive(true) {};
+        Entity() : _id(uuid::GenerateEntityID<u64>()), tag(), cmp_mask(), components(), is_alive(true) {};
+        Entity(const Entity &other) : _id(other._id), tag(other.tag), cmp_mask(), components(other.components), is_alive(other.is_alive) {};
+        Entity(Entity &&other) : _id(other._id), tag(other.tag), cmp_mask(), components(other.components), is_alive(other.is_alive) {};
+        Entity(const std::string &tag) : _id(uuid::GenerateEntityID<u64>()), tag(tag), cmp_mask(), components(), is_alive(true) {};
 
         [[nodiscard]] inline u64 GetID() const noexcept
         {
-            return uuid::GenerateEntityID<u64>();
+            return _id;
         };
 
         [[nodiscard]] inline mask_t GetComponentMask() const noexcept

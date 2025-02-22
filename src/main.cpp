@@ -1,6 +1,7 @@
 #include <iostream>
 #include "../include/ecs/entity_traits.hpp"
 #include "../include/ecs/entity.hpp"
+#include "../include/ecs/world.hpp"
 
 using namespace snek;
 using namespace snek::internal;
@@ -10,8 +11,13 @@ struct A
 };
 int main(int argc, char **argv)
 {
+    World w;
+    auto e = w.spawn("entity");
+    std::cout << e.GetID();
+    Entity b;
+    std::cout << b.GetID();
 
-    bool v = has_entt_traits<Entity, std::string, u64>::value;
-    std::cout << std::boolalpha << v << std::endl;
+    std::cout << std::boolalpha << w.has_entity(e);
+
     return 0;
 }
