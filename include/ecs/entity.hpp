@@ -16,7 +16,6 @@ namespace snek
     public:
         using mask_t = u64;
         using tag_t = std::string;
-        using size_type = u64;
 
     protected:
         tag_t tag;
@@ -30,9 +29,9 @@ namespace snek
         Entity(Entity &&other) : tag(other.tag), cmp_mask(), components(other.components), is_alive(other.is_alive) {};
         Entity(const std::string &tag) : tag(tag), cmp_mask(), components(), is_alive(true) {};
 
-        [[nodiscard]] inline size_type GetID() const noexcept
+        [[nodiscard]] inline u64 GetID() const noexcept
         {
-            return uuid::GenerateEntityID<size_type>();
+            return uuid::GenerateEntityID<u64>();
         };
 
         [[nodiscard]] inline mask_t GetComponentMask() const noexcept
