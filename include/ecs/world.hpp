@@ -2,15 +2,18 @@
 #include "entity.hpp"
 #include <unordered_map>
 #include <map>
+#include "snek_alloc.hpp"
+
 namespace snek
 {
 
-    template <typename Alloc = std::allocator<Entity>>
+    template <typename SizeT = u64, typename Alloc = internal::snek_allocator<SizeT, Entity>>
     class World
     {
         u64 world_mask;
         std::unordered_map<std::string, std::vector<Entity *>> entities_by_tag;
         std::map<u64, Entity *> entities_by_id;
+
         bool running;
 
     public:
