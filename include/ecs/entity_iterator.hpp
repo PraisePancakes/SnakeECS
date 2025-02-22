@@ -33,12 +33,12 @@ namespace snek
                 return ret;
             }
 
-            bool operator==(const entt_iterator &o)
+            bool operator==(const entt_iterator &o) const
             {
                 return this->it == o.it;
             }
 
-            bool operator!=(const entt_iterator &o)
+            bool operator!=(const entt_iterator &o) const
             {
                 return !(*this == o);
             }

@@ -5,14 +5,6 @@ namespace snek
 {
     namespace internal
     {
-        template <typename E>
-        struct entt_traits
-        {
-            using tag_t = E::tag_t;
-            using mask_t = E::mask_t;
-            using size_type = E::size_type;
-        };
-
         template <typename T>
         struct strip
         {
