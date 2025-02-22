@@ -11,8 +11,6 @@ namespace snek
             T *it;
 
         public:
-            using value_t = T;
-            using pointer = T *;
             using mask_t = T::mask_t;
             using const_reference = const T &;
             using const_pointer = const T *;
