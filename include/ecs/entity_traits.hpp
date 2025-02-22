@@ -6,7 +6,7 @@ namespace snek
     namespace internal
     {
         template <typename E>
-        struct ent_traits
+        struct entt_traits
         {
             using tag_t = E::tag_t;
             using mask_t = E::mask_t;
@@ -36,7 +36,7 @@ namespace snek
         };
 
         template <typename T, typename U>
-        constexpr bool has_cmp_mask_v = has_cmp_mask<T, U>::value;
+        constexpr static bool has_cmp_mask_v = has_cmp_mask<T, U>::value;
 
         template <typename T, typename TagType, typename = void>
         struct has_tag : std::false_type
@@ -55,11 +55,11 @@ namespace snek
         constexpr bool has_tag_v = has_tag<T, U>::value;
 
         template <typename Entity, typename TagType, typename MaskType>
-        struct has_entity_traits
+        struct has_entt_traits
         {
-            static constexpr bool value = (has_tag<Entity, TagType>::value && has_cmp_mask<Entity, MaskType>::value);
+            constexpr static bool value = (has_tag<Entity, TagType>::value && has_cmp_mask<Entity, MaskType>::value);
         };
 
-        }
+    }
 
 }
