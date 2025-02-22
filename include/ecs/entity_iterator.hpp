@@ -6,17 +6,14 @@ namespace snek
     namespace container
     {
         template <typename T>
-        class entt_iterator
+        class entt_iterator : public std::iterator<std::input_iterator_tag, T, std::ptrdiff_t, T *, T &>
         {
             T *it;
 
         public:
             using value_t = T;
             using pointer = T *;
-            using size_type = size_t;
             using mask_t = T::mask_t;
-            using difference_type = std::ptrdiff_t;
-            using reference = T &;
             using const_reference = const T &;
             using const_pointer = const T *;
 
@@ -45,22 +42,22 @@ namespace snek
 
             bool operator!=(const entt_iterator &o)
             {
-                return !(this == o);
+                return !(*this == o);
             }
+
+            reference operator*() const
+            {
+                return *it;
+            };
 
             ~entt_iterator() {};
         };
 
         template <typename It>
-        struct entt_iterator_traits
+        struct entt_iterator_traits : public std::iterator_traits<It>
         {
-            using value_t = It::value_t;
-            using size_type = It::size_type;
             using mask_t = It::mask_t;
             using tag_t = It::tag_t;
-            using difference_type = It::difference_type;
-            using pointer = It::pointer;
-            using reference = It::reference;
         };
     }
 }
