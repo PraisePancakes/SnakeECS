@@ -74,6 +74,11 @@ namespace snek
             return this->is_alive;
         }
 
+        void kill()
+        {
+            this->is_alive = false;
+        }
+
         template <typename C>
         void RemoveComponent()
         {

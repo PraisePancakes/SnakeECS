@@ -12,12 +12,12 @@ struct A
 int main(int argc, char **argv)
 {
     World w;
-    auto e = w.spawn("entity");
-    std::cout << e.GetID();
-    Entity b;
-    std::cout << b.GetID();
-
-    std::cout << std::boolalpha << w.has_entity(e);
+    auto e = w.Spawn("entity");
+    auto e_get = w.GetEntityByID(2);
+    if (e_get)
+    {
+        std::cout << "id : " << e_get->GetID() << std::endl;
+    };
 
     return 0;
 }

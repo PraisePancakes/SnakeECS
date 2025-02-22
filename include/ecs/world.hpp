@@ -14,8 +14,9 @@ namespace snek
         World() : world_mask(0), entities_by_tag(), entities_by_id(), running(true) {};
         World(const World &o) : world_mask(o.world_mask), entities_by_tag(o.entities_by_tag), entities_by_id(o.entities_by_id), running(true) {};
         World(World &&o) : world_mask(o.world_mask), entities_by_tag(std::move(o.entities_by_tag)), entities_by_id(std::move(o.entities_by_id)), running(true) {};
+
         inline void WorldPause() { running = false; };
-        Entity &spawn()
+        Entity &Spawn()
         {
             Entity *e = new Entity("");
             entities_by_tag[e->GetTag()].push_back(e);
@@ -23,8 +24,7 @@ namespace snek
             world_mask |= e->GetID();
             return *e;
         };
-
-        Entity &spawn(const std::string &tag)
+        Entity &Spawn(const std::string &tag)
         {
             Entity *e = new Entity(tag);
             entities_by_tag[e->GetTag()].push_back(e);
@@ -32,20 +32,32 @@ namespace snek
             world_mask |= e->GetID();
             return *e;
         }
-
-        [[nodsicard]] bool has_entity(const Entity &e) const noexcept
+        Entity *GetEntityByID(u64 id) const noexcept
+        {
+            if (entities_by_id.find(id) == entities_by_id.end())
+                return nullptr;
+            return entities_by_id.at(id);
+        };
+        [[nodiscard]] std::vector<Entity *> GetEntitiesByTag(const std::string &tag) const
+        {
+            return entities_by_tag.at(tag);
+        }
+        bool HasEntity(const Entity &e) const noexcept
         {
             return ((world_mask & e.GetID()) == e.GetID());
         };
-        [[nodsicard]] bool has_entity(u64 id) const noexcept
+        bool HasEntity(u64 id) const noexcept
         {
             return ((world_mask & id) == id);
         };
-        [[nodiscard]] bool has_tag(const std::string &tag)
+        bool HasTag(const std::string &tag)
         {
             return (entities_by_tag.find(tag) != entities_by_tag.end());
         }
-
+        [[nodiscard]] bool IsRunning() const
+        {
+            return this->running;
+        }
         ~World() {
 
         };
