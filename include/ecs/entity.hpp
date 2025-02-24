@@ -45,18 +45,24 @@ namespace snek
             return tag;
         }
 
-        template <typename C>
+        template <typename T>
         [[nodiscard]] bool HasComponent() noexcept
         {
-            static_assert(std::is_base_of_v<Component, C>, "Custom component must be inherit from snek::core::Component");
-            u64 hash = (uuid::GenerateComponentHashCode<C>());
+            static_assert(std::is_base_of_v<Component, T>, "Custom component must inherit from snek::core::Component");
+            u64 hash = (uuid::GenerateComponentHashCode<T>());
             return ((cmp_mask & hash) == hash);
         };
 
+        template <typename T, typename U, typename... Args>
+        [[nodiscard]] bool HasComponent() noexcept
+        {
+            return (HasComponent<T>() && HasComponent<U>() && (HasComponent<Args>() && ...));
+        };
+        
         template <typename C, typename... Args>
         C &AddComponent(Args &&...args)
         {
-            static_assert(std::is_base_of_v<Component, C>, "Custom component must be inherit from snek::core::Component");
+            static_assert(std::is_base_of_v<Component, C>, "Custom component must inherit from snek::core::Component");
             u64 hash = (uuid::GenerateComponentHashCode<C>());
             if (HasComponent<C>())
             {
@@ -82,7 +88,7 @@ namespace snek
         template <typename C>
         void RemoveComponent()
         {
-            static_assert(std::is_base_of_v<Component, C>, "Custom component must be inherit from snek::core::Component");
+            static_assert(std::is_base_of_v<Component, C>, "Custom component must inherit from snek::core::Component");
             cmp_mask &= ~(uuid::GenerateComponentHashCode<C>());
         };
         ~Entity() {};

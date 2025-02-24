@@ -6,12 +6,28 @@
 using namespace snek;
 using namespace snek::internal;
 
+class A : public Component
+{
+};
+
+class B : public Component
+{
+};
+
+class C : public Component
+{
+};
+
 int main(int argc, char **argv)
 {
     World w;
-    auto e = w.Spawn();
-    auto b = w.Spawn();
 
-    std::cout << w.GetEntitiesByTag("").size();
+    Entity e = w.Spawn();
+
+    e.AddComponent<A>();
+    e.AddComponent<B>();
+
+    std::cout << std::boolalpha << e.HasComponent<A>() << std::endl;
+
     return 0;
 }
