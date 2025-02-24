@@ -27,7 +27,8 @@ int main(int argc, char **argv)
     e.AddComponent<A>();
     e.AddComponent<B>();
 
-    std::cout << std::boolalpha << e.HasComponent<A>() << std::endl;
+    std::cout
+        << std::boolalpha << e.HasComponent<A, B>() << std::endl;
 
     return 0;
 }

@@ -58,7 +58,7 @@ namespace snek
         {
             return (HasComponent<T>() && HasComponent<U>() && (HasComponent<Args>() && ...));
         };
-        
+
         template <typename C, typename... Args>
         C &AddComponent(Args &&...args)
         {
@@ -85,12 +85,24 @@ namespace snek
             this->is_alive = false;
         }
 
-        template <typename C>
-        void RemoveComponent()
+        template <typename T>
+        void RemoveComponent() noexcept
         {
-            static_assert(std::is_base_of_v<Component, C>, "Custom component must inherit from snek::core::Component");
-            cmp_mask &= ~(uuid::GenerateComponentHashCode<C>());
+            if (!HasComponent<T>())
+                return;
+            static_assert(std::is_base_of_v<Component, T>, "Custom component must inherit from snek::core::Component");
+            u64 hash = (uuid::GenerateComponentHashCode<T>());
+            cmp_mask &= ~(hash);
         };
+
+        template <typename T, typename U, typename... Args>
+        void RemoveComponent() noexcept
+        {
+            RemoveComponent<T>();
+            RemoveComponent<U>();
+            (RemoveComponent<Args>(), ...);
+        };
+
         ~Entity() {};
     };
 
