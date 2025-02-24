@@ -6,16 +6,12 @@
 using namespace snek;
 using namespace snek::internal;
 
-struct A
-{
-};
 int main(int argc, char **argv)
 {
     World w;
     auto e = w.Spawn();
-    Entity b;
+    auto b = w.Spawn();
 
-    std::cout << std::boolalpha << w.HasEntity(b);
-
+    std::cout << w.GetEntitiesByTag("").size();
     return 0;
 }
