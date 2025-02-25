@@ -13,6 +13,7 @@ namespace snek
 
     class Entity
     {
+
     public:
         using mask_t = u64;
         using tag_t = std::string;
@@ -46,7 +47,7 @@ namespace snek
         }
 
         template <typename T>
-        [[nodiscard]] bool HasComponent() noexcept
+        [[nodiscard]] bool HasComponent() const noexcept
         {
             static_assert(std::is_base_of_v<Component, T>, "Custom component must inherit from snek::core::Component");
             u64 hash = (uuid::GenerateComponentHashCode<T>());
@@ -54,7 +55,7 @@ namespace snek
         };
 
         template <typename T, typename U, typename... Args>
-        [[nodiscard]] bool HasComponent() noexcept
+        [[nodiscard]] bool HasComponent() const noexcept
         {
             return (HasComponent<T>() && HasComponent<U>() && (HasComponent<Args>() && ...));
         };
@@ -73,6 +74,22 @@ namespace snek
             cmp_mask |= hash;
             c->owner = this;
             return *c;
+        };
+
+        template <typename... T, typename... Args>
+        void InitializeComponents(Args &&...args)
+        {
+            (AddComponent<T>(std::forward<Args>(args)), ...);
+        }
+
+        template <typename T>
+        T *GetComponent() const
+        {
+            static_assert(std::is_base_of_v<Component, T>, "Custom component must inherit from snek::core::Component");
+            if (!HasComponent<T>())
+                return nullptr;
+            u64 hash = (uuid::GenerateComponentHashCode<T>());
+            return (T *)components.at(hash);
         };
 
         [[nodiscard]] bool IsAlive() const
