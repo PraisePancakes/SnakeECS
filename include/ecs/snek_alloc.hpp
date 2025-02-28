@@ -49,19 +49,38 @@ namespace snek
             template <typename... Args>
             T *construct(Args &&...args)
             {
-                _offset++;
-                if (_offset > _max_size)
-                {
-                    return nullptr;
-                }
-                auto p = std::construct_at(_region + (_offset - 1), std::forward<Args>(args)...);
-                return p;
+                push(std::move(args)...);
+                return top();
             };
 
             template <typename U>
-            constexpr static void destroy(U *p) {
-
+            constexpr static void destroy(U *p)
+            {
+                std::destroy_at(p);
             };
+
+            template <typename... Args>
+            void push(Args &&...args)
+            {
+                _offset++;
+                if (_offset > _max_size)
+                {
+                    _offset--;
+                    return;
+                }
+                std::construct_at(_region + (_offset - 1), std::forward<Args>(args)...);
+            }
+
+            [[nodiscard]] T *top() const
+            {
+                return _region + (_offset - 1);
+            };
+
+            void pop()
+            {
+                destroy(std::move(top()));
+                _offset--;
+            }
 
             void deallocate() {
 
