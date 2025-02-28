@@ -6,29 +6,12 @@
 using namespace snek;
 using namespace snek::internal;
 
-// e.AddComponent<A, B, C>("a", "b", "c");
-
-class A : public Component
-{
-public:
-    std::string str;
-    A(std::string s) : str(s) {
-
-                       };
-};
-class B : public Component
-{
-public:
-    B(std::string s) {
-    };
-};
-
 int main(int argc, char **argv)
 {
-    World w;
-    Entity e = w.Spawn();
-    e.InitializeComponents<A, B>("A", "B");
-    std::cout << e.GetComponent<A>()->str;
+    World<Entity, 1000> w;
+    Entity e = w.Spawn("test");
+    auto tag = w.GetEntityByID(e.GetID())->GetTag();
+    std::cout << tag;
 
-    return 0;
+        return 0;
 }

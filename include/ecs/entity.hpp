@@ -5,7 +5,7 @@
 #include <vector>
 #include "../utils/identifier.hpp"
 #include <unordered_map>
-
+#include <algorithm>
 namespace snek
 {
 
@@ -97,9 +97,14 @@ namespace snek
             return this->is_alive;
         }
 
-        void kill()
+        void Kill()
         {
             this->is_alive = false;
+            std::for_each(components.begin(), components.end(), [](std::pair<size_t, Component *> pair)
+                          { auto c = pair.second;
+                            
+              if(c) { 
+                delete c; } });
         }
 
         template <typename T>
@@ -120,7 +125,13 @@ namespace snek
             (RemoveComponent<Args>(), ...);
         };
 
-        ~Entity() {};
+        ~Entity()
+        {
+            if (is_alive)
+            {
+                Kill();
+            }
+        };
     };
 
     // eventually the goal is to allow client side users of this library to use customizable ecs types

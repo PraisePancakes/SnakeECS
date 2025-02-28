@@ -9,6 +9,7 @@
 namespace snek
 {
     class Entity;
+
     class Component
     {
     public:
