@@ -9,10 +9,8 @@
 namespace snek
 {
     class Entity;
-
-    class Component
+    struct Component
     {
-    public:
         Entity *owner;
         Component() {};
         ~Component() {};

@@ -1,27 +1,27 @@
 #pragma once
 #include "../common_types.hpp"
-#include "../ecs/component.hpp"
 
 namespace snek
 {
-    class Component;
-
     namespace uuid
     {
-        template <typename SizeT = u64>
-        inline auto GenerateEntityID() noexcept
+        static u64 S_component_id = 0;
+
+        static inline auto GenerateEntityID() noexcept
         {
-            static SizeT new_id = 0;
-            SizeT old = new_id;
+            static u64 new_id = 0;
+            u64 old = new_id;
             new_id++;
             return old;
         };
 
-        template <typename C, typename = std::enable_if_t<std::is_base_of_v<Component, C>>>
-        size_t GenerateComponentHashCode()
+        template <typename Component>
+        static inline auto GenerateComponentID() noexcept
         {
-            return typeid(C).hash_code();
+            static u64 id = S_component_id++;
+            return id;
         };
+
     }
 
 }

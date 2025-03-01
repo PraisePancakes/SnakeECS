@@ -4,38 +4,40 @@
 #include <map>
 #include "snek_alloc.hpp"
 #include <algorithm>
+#include "entity.hpp"
+#include "component.hpp"
+#include "../common_types.hpp"
 
 namespace snek
 {
-    template <typename T, u64 n, typename Alloc = internal::snek_linear_allocator<T>, typename = std::enable_if_t<std::is_base_of_v<Entity, T>>>
+    template <u64 n, typename Alloc = internal::snek_linear_allocator<Entity>>
     class World
     {
     public:
         using alloc_traits = std::allocator_traits<Alloc>;
-
         // Entity* will store pointer to constructed type from the allocator which holds the object in preallocated memory.
-        using EntityMap = std::unordered_map<u64, typename alloc_traits::pointer>;
-        using TagMap = std::unordered_map<std::string, std::vector<typename alloc_traits::pointer>>;
+        using EntityTable = std::unordered_map<u64, typename alloc_traits::pointer>;
+        using ComponentTable = std::unordered_map<u64, EntityTable>;
 
     private:
+        EntityTable entity_map;
+        // where u64 is component mask over set of components.
+        ComponentTable groups;
         Alloc _alloc;
-        EntityMap entities_by_id;
-        TagMap entities_by_tag;
         static constexpr u64 max_size = n;
         bool running;
         alloc_traits::pointer _region;
 
-        [[nodiscard]] typename alloc_traits::pointer create_entity(const std::string &tag)
+        [[nodiscard]] typename alloc_traits::pointer create_entity()
         {
             try
             {
-                typename alloc_traits::pointer p = _alloc.construct(tag);
+                typename alloc_traits::pointer p = _alloc.construct();
                 if (!p)
                 {
                     throw std::runtime_error("construction overflowed maximum allowed world storage [max = " + std::to_string(max_size) + "]");
                 }
-                entities_by_id.emplace(p->GetID(), p);
-                entities_by_tag[tag].push_back(p);
+                entity_map.insert(std::pair<u64, typename alloc_traits::pointer>(p->GetID(), p));
                 return p;
             }
             catch (std::exception &e)
@@ -47,58 +49,91 @@ namespace snek
 
     public:
         World()
-            : entities_by_id(),
-              entities_by_tag(),
-              running(true),
+            : running(true),
               _region(alloc_traits::allocate(_alloc, n)) {
               };
 
         World(const World &o)
-            : entities_by_id(o.entities_by_id),
-              entities_by_tag(o.entities_by_tag),
-              running(true),
+            : running(true),
               _region(o.entity_region) {};
 
         World(World &&o)
-            : entities_by_id(std::move(o.entities_by_id)),
-              entities_by_tag(std::move(o.entities_by_id)),
-              _region(std::move(o._region)),
+            : _region(std::move(o._region)),
               running(true) {};
 
         inline void WorldPause() { running = false; };
 
         [[nodiscard]] alloc_traits::value_type &Spawn()
         {
-            return *(create_entity(""));
+            return *(create_entity());
         };
-        [[nodiscard]] alloc_traits::value_type &Spawn(const std::string &tag)
-        {
-            return *(create_entity(tag));
-        }
         [[nodiscard]] alloc_traits::pointer GetEntityByID(u64 id) const noexcept
         {
-            if (entities_by_id.find(id) == entities_by_id.end())
+            if (entity_map.find(id) == entity_map.end())
                 return nullptr;
-            return entities_by_id.at(id);
+            return entity_map.at(id);
         };
-        [[nodiscard]] Alloc &GetWorldAllocator() const noexcept { return _alloc; };
-        [[nodiscard]] std::vector<typename alloc_traits::pointer> GetEntitiesByTag(const std::string &tag)
+
+        template <typename C>
+        [[nodiscard]] bool HasComponent(const Entity &e)
         {
-            return entities_by_tag.at(tag);
+            static_assert(std::is_base_of_v<Component, C>, "Custom component must inherit from snek::core::Component");
+            u64 id = uuid::GenerateComponentID<C>();
+            return ((e.GetComponentMask() & id) == id);
+        }
+        template <typename T, typename U, typename... Args>
+        [[nodiscard]] bool HasComponent(const Entity &e) const noexcept
+        {
+            return (HasComponent<T>() && HasComponent<U>() && (HasComponent<Args>() && ...));
         };
+        template <typename C, typename... Args>
+        C &BindComponent(Entity &e, Args &&...args)
+        {
+            // ct guard
+            static_assert(std::is_base_of_v<Component, C>, "Custom component must inherit from snek::core::Component");
+
+            // remove from previous group
+            u64 old_mask = e.GetComponentMask();
+            groups[old_mask][e.GetID()] = nullptr;
+
+            e.SetComponentFlag(uuid::GenerateComponentID<C>());
+            // construct component
+            C *c = new C(std::forward<Args>(args)...);
+            // bind it to entity
+            c->owner = &e;
+            // track it
+            // --add to new group
+            u64 new_mask = e.GetComponentMask();
+            groups[new_mask][e.GetID()] = &e;
+            return *c;
+        };
+
+        template <typename C>
+        C *GetComponent(const Entity &e)
+        {
+            if (!HasComponent<C>(e))
+            {
+                return nullptr;
+            };
+            
+
+        };
+
+        template <typename C, typename... Cs>
+        EntityTable EntitiesWithComponents() {
+
+        };
+
+        [[nodiscard]] Alloc &GetWorldAllocator() const noexcept { return _alloc; };
         // convert to variadic template to check if all entity ids exist, ensure argument set shares the same type
         [[nodiscard]] bool HasEntity(const alloc_traits::value_type &e) const noexcept
         {
-            return entities_by_id.find(e.GetID()) != entities_by_id.end();
+            return entity_map.find(e.GetID()) != entity_map.end();
         };
         [[nodiscard]] bool HasEntity(u64 id) const noexcept
         {
-            return entities_by_id.find(id) != entities_by_id.end();
+            return entity_map.find(id) != entity_map.end();
         };
-        [[nodiscard]] bool HasTag(const std::string &tag)
-        {
-            return entities_by_tag.at(tag).size() > 0;
-        }
         [[nodiscard]] bool IsRunning() const
         {
             return this->running;

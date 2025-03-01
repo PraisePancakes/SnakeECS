@@ -26,6 +26,18 @@ namespace snek
             // [  x  | x |   |   |   |   ]  destroy at offset   , offset-- => 4
             // [  x  |   |   |   |   |   ]  destroy at offset   , offset-- => 5
             // the memory is already preallocated all we need to do is construct at these offsets saving from potential mass "new" bottlenecks.
+
+            [[nodiscard]] T *top() const
+            {
+                return _region + (_offset - 1);
+            };
+
+            void pop()
+            {
+                destroy(std::move(top()));
+                _offset--;
+            }
+
         public:
             snek_linear_allocator() : _region(), _max_size(), _offset(0) {};
             snek_linear_allocator(const snek_linear_allocator &other) : _region(other._region), _max_size(other._max_size), _offset(other._offset) {};
@@ -69,17 +81,6 @@ namespace snek
                     return;
                 }
                 std::construct_at(_region + (_offset - 1), std::forward<Args>(args)...);
-            }
-
-            [[nodiscard]] T *top() const
-            {
-                return _region + (_offset - 1);
-            };
-
-            void pop()
-            {
-                destroy(std::move(top()));
-                _offset--;
             }
 
             void deallocate() {
