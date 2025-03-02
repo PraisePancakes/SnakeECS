@@ -31,8 +31,7 @@ namespace snek
         void SetComponentFlag(u64 f)
         {
             cmp_mask |= f;
-            
-        };
+                };
 
         void RemoveComponentFlag(u64 f)
         {

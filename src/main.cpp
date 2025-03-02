@@ -35,11 +35,9 @@ int main(int argc, char **argv)
 
     auto e = w.Spawn();
 
-    w.BindComponent<A>(e, 4);
-    w.BindComponent<B>(e, 'x');
+    w.InitializeComponents<A, B>(e, 2, 'b');
 
-    auto g = w.GetGroupView<A, B>();
-
+    std::cout << w.GetComponent<B>(e)->c << std::endl;
 
     return 0;
 }

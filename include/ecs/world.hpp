@@ -131,6 +131,12 @@ namespace snek
             return *c;
         };
 
+        template <typename... T, typename... Args>
+        void InitializeComponents(Entity &e, Args &&...args)
+        {
+            (BindComponent<T>(e, std::forward<Args>(args)), ...);
+        }
+
         template <typename C>
         C *GetComponent(const Entity &e) noexcept
         {
@@ -154,7 +160,6 @@ namespace snek
                 static EntityTable empty_table;
                 return empty_table;
             }
-
             return groups[mask];
         }
 
