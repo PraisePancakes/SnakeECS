@@ -17,14 +17,18 @@ namespace snek
         using alloc_traits = std::allocator_traits<Alloc>;
         // Entity* will store pointer to constructed type from the allocator which holds the object in preallocated memory.
         using EntityTable = std::unordered_map<u64, typename alloc_traits::pointer>;
-        using ComponentTable = std::unordered_map<u64, EntityTable>;
+        // where u64 is component mask over set of components.
+        using GroupTable = std::unordered_map<u64, EntityTable>;
+        using ComponentStateTable = std::unordered_map<u64, std::unordered_map<u64, Component *>>;
+        static constexpr u64 max_size = n;
 
     private:
-        EntityTable entity_map;
-        // where u64 is component mask over set of components.
-        ComponentTable groups;
+        EntityTable entity_map; // all entities
+        GroupTable groups;
+        ComponentStateTable cmp_states;
+
         Alloc _alloc;
-        static constexpr u64 max_size = n;
+
         bool running;
         alloc_traits::pointer _region;
 
@@ -51,6 +55,7 @@ namespace snek
         World()
             : running(true),
               _region(alloc_traits::allocate(_alloc, n)) {
+
               };
 
         World(const World &o)
@@ -95,8 +100,8 @@ namespace snek
             // remove from previous group
             u64 old_mask = e.GetComponentMask();
             groups[old_mask][e.GetID()] = nullptr;
-
-            e.SetComponentFlag(uuid::GenerateComponentID<C>());
+            u64 id = uuid::GenerateComponentID<C>();
+            e.SetComponentFlag(id);
             // construct component
             C *c = new C(std::forward<Args>(args)...);
             // bind it to entity
@@ -105,18 +110,20 @@ namespace snek
             // --add to new group
             u64 new_mask = e.GetComponentMask();
             groups[new_mask][e.GetID()] = &e;
+            // add to component state table
+            cmp_states[e.GetID()][id] = c;
             return *c;
         };
 
         template <typename C>
-        C *GetComponent(const Entity &e)
+        C *GetComponent(const Entity &e) noexcept
         {
             if (!HasComponent<C>(e))
             {
                 return nullptr;
             };
-            
-
+            u64 c_id = uuid::GenerateComponentID<C>();
+            return static_cast<C *>(cmp_states[e.GetID()][c_id]);
         };
 
         template <typename C, typename... Cs>

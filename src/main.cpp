@@ -13,18 +13,9 @@ struct A : public Component
     A(int x) : x(x) {};
 };
 
-struct B : public Component
-{
-};
-
 int main(int argc, char **argv)
 {
-    World<1000> w;
-    auto e = w.Spawn();
-    auto c = w.BindComponent<A>(e);
-    auto d = w.BindComponent<A>(e, 3);
 
-    std::cout << w.HasComponent<B>(e);
 
     return 0;
 }
