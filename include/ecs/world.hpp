@@ -87,11 +87,10 @@ namespace snek
             u64 id = uuid::GenerateComponentID<C>();
             return ((e.GetComponentMask() & id) == id);
         }
-
         template <typename T, typename U, typename... Args>
         [[nodiscard]] bool HasComponent(const Entity &e) const noexcept
         {
-            return HasComponent<T>(e) && (HasComponent<U, Args...>(e));
+            return HasComponent<T>(e) && (HasComponent<U, Args>(e) && ...);
         };
 
         template <typename C, typename... Args>
@@ -101,7 +100,21 @@ namespace snek
             static_assert(std::is_base_of_v<Component, C>, "Custom component must inherit from snek::core::Component");
 
             // remove from previous group
-
+            u64 old_mask = e.GetComponentMask();
+            if (this->groups.find(old_mask) != this->groups.end())
+            {
+                EntityTable &entt_map = this->groups.at(old_mask);
+                auto it = entt_map.find(e.GetID());
+                if (it != entt_map.end())
+                {
+                    entt_map.erase(it);
+                }
+                if (entt_map.size() <= 0)
+                {
+                    auto it = this->groups.find(old_mask);
+                    this->groups.erase(it);
+                };
+            }
             // set new component mask
             u64 id = uuid::GenerateComponentID<C>();
             e.SetComponentFlag(id);
@@ -111,7 +124,8 @@ namespace snek
             c->owner = &e;
             // track it
             // --add to new group
-
+            u64 new_mask = e.GetComponentMask();
+            groups[new_mask][e.GetID()] = &e;
             // add to component state table
             cmp_states[e.GetID()][id] = c;
             return *c;
@@ -127,6 +141,22 @@ namespace snek
             u64 c_id = uuid::GenerateComponentID<C>();
             return static_cast<C *>(cmp_states[e.GetID()][c_id]);
         };
+
+        template <typename... Components>
+        EntityTable &GetGroupView()
+        {
+            static_assert((std::is_base_of_v<Component, Components> && ...),
+                          "All components must inherit from snek::core::Component");
+
+            u64 mask = (uuid::GenerateComponentID<Components>() | ...);
+            if (groups.find(mask) == groups.end())
+            {
+                static EntityTable empty_table;
+                return empty_table;
+            }
+
+            return groups[mask];
+        }
 
         [[nodiscard]] Alloc &GetWorldAllocator() const noexcept { return _alloc; };
         // convert to variadic template to check if all entity ids exist, ensure argument set shares the same type

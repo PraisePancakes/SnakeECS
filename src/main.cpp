@@ -38,7 +38,8 @@ int main(int argc, char **argv)
     w.BindComponent<A>(e, 4);
     w.BindComponent<B>(e, 'x');
 
-    std::cout << std::boolalpha << w.HasComponent<C, D>(e) << std::endl;
+    auto g = w.GetGroupView<A, B>();
+
 
     return 0;
 }
