@@ -13,9 +13,32 @@ struct A : public Component
     A(int x) : x(x) {};
 };
 
-int main(int argc, char **argv)
+struct B : public Component
 {
 
+    char c = 'a';
+    B(char c) : c(c) {};
+    ~B() {};
+};
+
+struct C : public Component
+{
+};
+
+struct D : public Component
+{
+};
+
+int main(int argc, char **argv)
+{
+    World<10> w;
+
+    auto e = w.Spawn();
+
+    w.BindComponent<A>(e, 4);
+    w.BindComponent<B>(e, 'x');
+
+    std::cout << std::boolalpha << w.HasComponent<C, D>(e) << std::endl;
 
     return 0;
 }

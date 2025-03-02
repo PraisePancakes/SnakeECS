@@ -21,10 +21,11 @@ namespace snek
         using GroupTable = std::unordered_map<u64, EntityTable>;
         using ComponentStateTable = std::unordered_map<u64, std::unordered_map<u64, Component *>>;
         static constexpr u64 max_size = n;
+        GroupTable groups;
 
     private:
         EntityTable entity_map; // all entities
-        GroupTable groups;
+
         ComponentStateTable cmp_states;
 
         Alloc _alloc;
@@ -80,17 +81,19 @@ namespace snek
         };
 
         template <typename C>
-        [[nodiscard]] bool HasComponent(const Entity &e)
+        [[nodiscard]] bool HasComponent(const Entity &e) const
         {
             static_assert(std::is_base_of_v<Component, C>, "Custom component must inherit from snek::core::Component");
             u64 id = uuid::GenerateComponentID<C>();
             return ((e.GetComponentMask() & id) == id);
         }
+
         template <typename T, typename U, typename... Args>
         [[nodiscard]] bool HasComponent(const Entity &e) const noexcept
         {
-            return (HasComponent<T>() && HasComponent<U>() && (HasComponent<Args>() && ...));
+            return HasComponent<T>(e) && (HasComponent<U, Args...>(e));
         };
+
         template <typename C, typename... Args>
         C &BindComponent(Entity &e, Args &&...args)
         {
@@ -98,8 +101,8 @@ namespace snek
             static_assert(std::is_base_of_v<Component, C>, "Custom component must inherit from snek::core::Component");
 
             // remove from previous group
-            u64 old_mask = e.GetComponentMask();
-            groups[old_mask][e.GetID()] = nullptr;
+
+            // set new component mask
             u64 id = uuid::GenerateComponentID<C>();
             e.SetComponentFlag(id);
             // construct component
@@ -108,8 +111,7 @@ namespace snek
             c->owner = &e;
             // track it
             // --add to new group
-            u64 new_mask = e.GetComponentMask();
-            groups[new_mask][e.GetID()] = &e;
+
             // add to component state table
             cmp_states[e.GetID()][id] = c;
             return *c;
@@ -124,11 +126,6 @@ namespace snek
             };
             u64 c_id = uuid::GenerateComponentID<C>();
             return static_cast<C *>(cmp_states[e.GetID()][c_id]);
-        };
-
-        template <typename C, typename... Cs>
-        EntityTable EntitiesWithComponents() {
-
         };
 
         [[nodiscard]] Alloc &GetWorldAllocator() const noexcept { return _alloc; };
