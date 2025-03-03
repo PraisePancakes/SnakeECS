@@ -7,6 +7,7 @@
 #include "entity.hpp"
 #include "component.hpp"
 #include "../common_types.hpp"
+#include <array>
 
 namespace snek
 {
@@ -16,14 +17,14 @@ namespace snek
     public:
         using alloc_traits = std::allocator_traits<Alloc>;
         // Entity* will store pointer to constructed type from the allocator which holds the object in preallocated memory.
-        using EntityTable = std::unordered_map<u64, typename alloc_traits::pointer>;
+        using EntityArray = std::array<typename alloc_traits::pointer, n>;
         // where u64 is component mask over set of components.
-        using GroupTable = std::unordered_map<u64, EntityTable>;
+        using GroupTable = std::unordered_map<u64, EntityArray>;
         using ComponentStateTable = std::unordered_map<u64, std::unordered_map<u64, Component *>>;
         static constexpr u64 max_size = n;
 
     private:
-        EntityTable entity_map; // all entities
+        EntityArray entity_array; // all entities
         GroupTable groups;
         ComponentStateTable cmp_states;
 
@@ -46,7 +47,7 @@ namespace snek
                     throw std::runtime_error("construction overflowed maximum allowed world storage [max = " + std::to_string(max_size) + "]");
                 }
                 p->SetID(id);
-                entity_map.insert(std::pair<u64, typename alloc_traits::pointer>(p->GetID(), p));
+                entity_array[id] = p;
                 return p;
             }
             catch (std::exception &e)
@@ -79,9 +80,7 @@ namespace snek
         };
         [[nodiscard]] alloc_traits::pointer GetEntityByID(u64 id) const noexcept
         {
-            if (entity_map.find(id) == entity_map.end())
-                return nullptr;
-            return entity_map.at(id);
+            return entity_array[id];
         };
 
         template <typename C>
@@ -107,13 +106,13 @@ namespace snek
             u64 old_mask = e.GetComponentMask();
             if (this->groups.find(old_mask) != this->groups.end())
             {
-                EntityTable &entt_map = this->groups.at(old_mask);
-                auto it = entt_map.find(e.GetID());
-                if (it != entt_map.end())
+                EntityArray &entt_arr = this->groups.at(old_mask);
+                auto it = entt_arr.at(e.GetID());
+                if (it != entt_arr.back())
                 {
-                    entt_map.erase(it);
+                    entt_arr[e.GetID()] = nullptr;
                 }
-                if (entt_map.size() <= 0)
+                if (entt_arr.size() <= 0)
                 {
                     auto it = this->groups.find(old_mask);
                     this->groups.erase(it);
@@ -153,7 +152,7 @@ namespace snek
         };
 
         template <typename... Components>
-        EntityTable &GetGroupView()
+        EntityArray GetGroupView()
         {
             static_assert((std::is_base_of_v<Component, Components> && ...),
                           "All components must inherit from snek::core::Component");
@@ -161,7 +160,7 @@ namespace snek
             u64 mask = (uuid::GenerateComponentID<Components>() | ...);
             if (groups.find(mask) == groups.end())
             {
-                static EntityTable empty_table;
+                static EntityArray empty_table;
                 return empty_table;
             }
             return groups[mask];
@@ -171,11 +170,11 @@ namespace snek
         // convert to variadic template to check if all entity ids exist, ensure argument set shares the same type
         [[nodiscard]] bool HasEntity(const alloc_traits::value_type &e) const noexcept
         {
-            return entity_map.find(e.GetID()) != entity_map.end();
+            return entity_array.find(e.GetID()) != entity_array.end();
         };
         [[nodiscard]] bool HasEntity(u64 id) const noexcept
         {
-            return entity_map.find(id) != entity_map.end();
+            return entity_array.find(id) != entity_array.end();
         };
         [[nodiscard]] bool IsRunning() const
         {

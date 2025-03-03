@@ -31,13 +31,19 @@ struct D : public Component
 
 int main(int argc, char **argv)
 {
-    World<10> w;
+    World<11> w;
 
-    auto e = w.Spawn();
+    auto e1 = w.Spawn();
+    w.BindComponent<A>(e1);
 
-    w.InitializeComponents<A, B>(e, 2, 'a');
+    for (int i = 0; i < 10; i++)
+    {
+        auto e = w.Spawn();
+        w.InitializeComponents<A, B>(e, i, i + 97);
+    }
 
-    std::cout << w.GetComponent<B>(e)->c << std::endl;
+    auto group = w.GetGroupView<A, B>();
+    auto group2 = w.GetGroupView<A>();
 
     return 0;
 }
