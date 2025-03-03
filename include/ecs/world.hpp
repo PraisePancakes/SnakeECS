@@ -2,7 +2,7 @@
 #include "entity.hpp"
 #include <unordered_map>
 #include <map>
-#include "snek_alloc.hpp"
+#include "verbose_allocator.hpp"
 #include <algorithm>
 #include "entity.hpp"
 #include "component.hpp"
@@ -10,7 +10,7 @@
 
 namespace snek
 {
-    template <u64 n, typename Alloc = internal::snek_linear_allocator<Entity>>
+    template <u64 n, typename Alloc = snek::allocator::verbose_allocator<Entity>>
     class World
     {
     public:
@@ -21,27 +21,31 @@ namespace snek
         using GroupTable = std::unordered_map<u64, EntityTable>;
         using ComponentStateTable = std::unordered_map<u64, std::unordered_map<u64, Component *>>;
         static constexpr u64 max_size = n;
-        GroupTable groups;
 
     private:
         EntityTable entity_map; // all entities
-
+        GroupTable groups;
         ComponentStateTable cmp_states;
 
         Alloc _alloc;
 
         bool running;
+
+        // region allocated by internal allocator, this region holds a pointer to each entity initialized within that region,
+        // the containers in this class will query from this preallocated region and store pointers to those entities.
         alloc_traits::pointer _region;
 
         [[nodiscard]] typename alloc_traits::pointer create_entity()
         {
             try
             {
-                typename alloc_traits::pointer p = _alloc.construct();
+                u64 id = uuid::GenerateEntityID();
+                typename alloc_traits::pointer p = std::construct_at(_region + id);
                 if (!p)
                 {
                     throw std::runtime_error("construction overflowed maximum allowed world storage [max = " + std::to_string(max_size) + "]");
                 }
+                p->SetID(id);
                 entity_map.insert(std::pair<u64, typename alloc_traits::pointer>(p->GetID(), p));
                 return p;
             }
@@ -180,11 +184,5 @@ namespace snek
         ~World() {
 
         };
-        // add entity
-        // remove entity
-        // add_entity(tag)
-        // get_entity(id)
-        // has_entity(id)
-        // get_entities(key) -> vector
     };
 };

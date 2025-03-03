@@ -35,7 +35,7 @@ int main(int argc, char **argv)
 
     auto e = w.Spawn();
 
-    w.InitializeComponents<A, B>(e, 2, 'b');
+    w.InitializeComponents<A, B>(e, 2, 'a');
 
     std::cout << w.GetComponent<B>(e)->c << std::endl;
 
