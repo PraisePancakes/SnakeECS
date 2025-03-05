@@ -8,6 +8,7 @@
 #include "component.hpp"
 #include "../common_types.hpp"
 #include <array>
+#include "view.hpp"
 
 namespace snek
 {
@@ -16,12 +17,16 @@ namespace snek
     {
     public:
         using alloc_traits = std::allocator_traits<Alloc>;
+        using EntityID = u64;
+        using ComponentID = u64;
+        using ComponentMask = u64;
         // Entity* will store pointer to constructed type from the allocator which holds the object in preallocated memory.
         using EntityArray = std::array<typename alloc_traits::pointer, n>;
+        using ComponentArray = std::array<Component *, n>;
         // where u64 is component mask over set of components.
-        using GroupTable = std::unordered_map<u64, EntityArray>;
-        using ComponentStateTable = std::unordered_map<u64, std::unordered_map<u64, Component *>>;
-        static constexpr u64 max_size = n;
+        using GroupTable = std::unordered_map<ComponentMask, EntityArray>;
+        using ComponentStateTable = std::unordered_map<ComponentID, ComponentArray>;
+        static constexpr EntityID max_size = n;
 
     private:
         EntityArray entity_array; // all entities
@@ -130,9 +135,21 @@ namespace snek
             u64 new_mask = e.GetComponentMask();
             groups[new_mask][e.GetID()] = &e;
             // add to component state table
-            cmp_states[e.GetID()][id] = c;
+            cmp_states[id][e.GetID()] = c;
+            /*  change cmp_states to be a 2d array of components as row and entity (by index) as column
+
+                c1  0, - , 2, -, -, 5
+                c2  ...
+                c3  ...
+
+
+
+            */
             return *c;
         };
+
+        template <typename... Cs>
+        snek::light_view<Cs...> view() {};
 
         template <typename... T, typename... Args>
         void InitializeComponents(Entity &e, Args &&...args)
@@ -148,7 +165,7 @@ namespace snek
                 return nullptr;
             };
             u64 c_id = uuid::GenerateComponentID<C>();
-            return static_cast<C *>(cmp_states[e.GetID()][c_id]);
+            return static_cast<C *>(cmp_states[c_id][e.GetID()]);
         };
 
         template <typename... Components>

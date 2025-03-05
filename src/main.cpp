@@ -33,9 +33,6 @@ int main(int argc, char **argv)
 {
     World<11> w;
 
-    auto e1 = w.Spawn();
-    w.BindComponent<A>(e1);
-
     for (int i = 0; i < 10; i++)
     {
         auto e = w.Spawn();
@@ -44,6 +41,14 @@ int main(int argc, char **argv)
 
     auto group = w.GetGroupView<A, B>();
     auto group2 = w.GetGroupView<A>();
+
+    for (size_t i = 0; i < group2.size(); i++)
+    {
+        if (group2[i] == nullptr)
+        {
+            std::cout << i << std::endl;
+        }
+    }
 
     return 0;
 }

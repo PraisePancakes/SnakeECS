@@ -16,7 +16,7 @@ namespace snek
         private:
             std::vector<std::array<T, max_size>> _pages;
             std::vector<T> _dense;
-            std::vector<u64> _ids;
+            std::vector<u64> _sparse;
 
         public:
             sparse_set() {};
