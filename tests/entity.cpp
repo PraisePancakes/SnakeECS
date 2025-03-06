@@ -76,3 +76,7 @@ void TEST_COMPONENT_GROUPS()
             std::cout << world.GetComponent<A>(*e)->x << std::endl;
     }
 };
+
+void TEST_REMOVE_COMPONENTS() {};
+void TEST_KILL_ENTITY() {};
+void TEST_IS_ALIVE() {};

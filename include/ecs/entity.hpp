@@ -8,9 +8,9 @@ namespace snek
     class Entity
     {
     protected:
-        u64 cmp_mask; // bit mask of components                     
-        bool is_alive;                                              
-        size_t _id;                                                 
+        u64 cmp_mask; // bit mask of components
+        bool is_alive;
+        size_t _id;
 
     public:
         Entity() : _id(), cmp_mask(), is_alive(true) {};
@@ -42,41 +42,14 @@ namespace snek
             cmp_mask &= ~(f);
         }
 
-        // template <typename T>
-        // void RemoveComponent() noexcept
-        // {
-        //     if (!HasComponent<T>())
-        //         return;
-        //     static_assert(std::is_base_of_v<Component, T>, "Custom component must inherit from snek::core::Component");
-        //     u64 hash = (uuid::GenerateComponentHashCode<T>());
-        //     cmp_mask &= ~(hash);
-        // };
+        [[nodiscard]] bool IsAlive() const
+        {
+            return this->is_alive;
+        }
 
-        // template <typename T, typename U, typename... Args>
-        // void RemoveComponent() noexcept
-        // {
-        //     RemoveComponent<T>();
-        //     RemoveComponent<U>();
-        //     (RemoveComponent<Args>(), ...);
-        // };
-
-        // [[nodiscard]] bool IsAlive() const
-        // {
-        //     return this->is_alive;
-        // }
-
-        // void Kill()
-        // {
-        //     this->is_alive = false;
-        //     std::for_each(components.begin(), components.end(), [](std::pair<size_t, Component *> pair)
-        //                   { auto c = pair.second;
-
-        //       if(c) {
-        //         delete c; } });
-        // }
-
-        ~Entity() {
-
+        ~Entity()
+        {
+            is_alive = false;
         };
     };
 

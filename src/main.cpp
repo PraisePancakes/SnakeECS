@@ -12,6 +12,6 @@ int main(int argc, char **argv)
     TEST_ENTITY_ID();
     TEST_COMPONENT_LIST_INITIALIZER();
     TEST_COMPONENT_GROUPS();
-
+    std::cout << world.size() << std::endl;
     return 0;
 }

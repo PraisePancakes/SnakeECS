@@ -9,6 +9,9 @@
 #include <array>
 #include "view.hpp"
 
+#define SNEK_ASSERT(value, msg) \
+    static_assert(value, msg)
+
 namespace snek
 {
     template <u64 Size, typename Alloc = snek::allocator::verbose_allocator<Entity>>
@@ -33,6 +36,7 @@ namespace snek
         ComponentStateTable cmp_states;
         pointer entity_pool;
         Alloc _alloc;
+        size_t _active;
 
         bool running;
 
@@ -63,7 +67,6 @@ namespace snek
         World()
             : running(true),
               entity_pool(alloc_traits::allocate(_alloc, Size)) {
-
               };
 
         World(const World &o)
@@ -78,6 +81,7 @@ namespace snek
 
         [[nodiscard]] alloc_traits::value_type &Spawn()
         {
+            ++_active;
             return *(create_entity());
         };
 
@@ -89,7 +93,7 @@ namespace snek
         template <typename C>
         [[nodiscard]] bool HasComponent(const Entity &e) const
         {
-            static_assert(std::is_class_v<C>, "Component must pass class type trait");
+            SNEK_ASSERT(std::is_class_v<C>, "Component must succeed std::is_class_v<T> type trait");
             u64 id = uuid::GenerateComponentID<C>();
             return ((e.GetComponentMask() & id) == id);
         }
@@ -103,7 +107,7 @@ namespace snek
         C &BindComponent(Entity &e, Args &&...args)
         {
             // ct guard
-            static_assert(std::is_class_v<C>, "Component must pass class type trait");
+            SNEK_ASSERT(std::is_class_v<C>, "Component must succeed std::is_class_v<T> type trait");
 
             // remove from previous group
             u64 old_mask = e.GetComponentMask();
@@ -115,11 +119,6 @@ namespace snek
                 {
                     archetype_array[e.GetID()] = nullptr;
                 }
-                if (archetype_array.size() <= 0)
-                {
-                    auto it = this->groups.find(old_mask);
-                    this->groups.erase(it);
-                };
             }
             // set new component mask
             u64 id = uuid::GenerateComponentID<C>();
@@ -136,7 +135,61 @@ namespace snek
             return *c;
         };
 
-        constexpr u64 size()
+        template <typename T>
+        void RemoveComponent(Entity &e) noexcept
+        {
+            if (!HasComponent<T>(e))
+                return;
+            SNEK_ASSERT(std::is_class_v<T>, "Component must succeed std::is_class_v<T> type trait");
+            u64 id = (uuid::GenerateComponentID<T>());
+            u64 old_mask = e.GetComponentMask();
+            if (groups.size() > 0 && this->groups.find(old_mask) != this->groups.end())
+            {
+                EntityArray &archetype_array = this->groups.at(old_mask);
+                auto it = archetype_array.at(e.GetID());
+                if (it != archetype_array.back())
+                {
+                    archetype_array[e.GetID()] = nullptr;
+                }
+            }
+            e.RemoveComponentFlag(id);
+            u64 new_mask = e.GetComponentMask();
+            groups[new_mask][e.GetID()] = &entity_pool[e.GetID()];
+            cmp_states[id][e.GetID()] = nullptr;
+        };
+
+        template <typename T, typename U, typename... Args>
+        void RemoveComponent(Entity &e) noexcept
+        {
+            RemoveComponent<T>();
+            RemoveComponent<U>();
+            (RemoveComponent<Args>(), ...);
+        };
+
+        [[nodiscard]] bool IsAlive(const Entity &e) const
+        {
+            return e.IsAlive();
+        }
+
+        void KillEntity(Entity &e)
+        {
+            // remove from current group;
+            this->groups[e.GetComponentMask()][e.GetID()] = nullptr;
+            // remove all its component states
+            for (auto &c : cmp_states)
+            {
+                c[e.GetID()] = nullptr;
+            }
+            // remove from pool
+            std::destroy_at(entity_pool + e.GetID());
+        }
+
+        size_t size() const
+        {
+            return _active;
+        };
+
+        constexpr u64 capacity()
         {
             return max_size;
         };
@@ -165,8 +218,8 @@ namespace snek
         template <typename... Components>
         EntityArray GetGroupView()
         {
-            static_assert((std::is_class_v<Components> && ...),
-                          "Component must pass class type trait");
+            SNEK_ASSERT((std::is_class_v<Components> && ...),
+                        "Component must pass class type trait");
             u64 mask = (uuid::GenerateComponentID<Components>() | ...);
             if (groups.find(mask) == groups.end())
             {
