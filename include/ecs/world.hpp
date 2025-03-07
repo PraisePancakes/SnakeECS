@@ -194,11 +194,11 @@ namespace snek
             return max_size;
         };
 
-        template <u64 S = max_size, typename... Cs>
-        snek::light_view<S, Cs...> view()
+        template <typename... Cs>
+        snek::light_view<max_size, pointer, Cs...> view()
         {
-
-           
+            snek::light_view<max_size, pointer, Cs...> v(cmp_states, groups);
+            return v;
         };
 
         template <typename... T, typename... Args>

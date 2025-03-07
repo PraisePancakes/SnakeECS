@@ -2,16 +2,15 @@
 #include "../include/ecs/entity_traits.hpp"
 #include "../include/ecs/entity.hpp"
 #include "../include/ecs/world.hpp"
-#include "../tests/entity.cpp"
+#include "../tests/test_entity.cpp"
 
 using namespace snek;
 using namespace snek::internal;
 
 int main(int argc, char **argv)
 {
-    TEST_ENTITY_ID();
-    TEST_COMPONENT_LIST_INITIALIZER();
-    TEST_COMPONENT_GROUPS();
+
+    TEST_VIEW();
     std::cout << world.size() << std::endl;
     return 0;
 }

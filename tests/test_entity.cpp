@@ -27,10 +27,16 @@ struct B
 
 struct C
 {
+    int x = 2;
+    C() {};
+    C(int x) : x(x) {};
 };
 
 struct D
 {
+    char c = 'a';
+    D(char c) : c(c) {};
+    ~D() {};
 };
 
 void TEST_COMPONENTS()
@@ -75,6 +81,21 @@ void TEST_COMPONENT_GROUPS()
         if (e)
             std::cout << world.GetComponent<A>(*e)->x << std::endl;
     }
+};
+
+void TEST_VIEW()
+{
+    for (size_t i = 0; i < 10; i++)
+    {
+        snek::Entity e = world.Spawn();
+        world.InitializeComponents<D, C>(e, (i % 2 == 0 ? i + 1 : i - 1), i + 97);
+    }
+
+    auto group = world.view<C, D>();
+
+    group.for_each([&](const C &c, const D &d)
+                   { std::cout << c.x << std::endl;
+                std::cout << d.c << std::endl; });
 };
 
 void TEST_REMOVE_COMPONENTS() {};
