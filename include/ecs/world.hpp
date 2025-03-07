@@ -194,8 +194,12 @@ namespace snek
             return max_size;
         };
 
-        template <typename... Cs>
-        snek::light_view<Cs...> view() {};
+        template <u64 S = max_size, typename... Cs>
+        snek::light_view<S, Cs...> view()
+        {
+
+           
+        };
 
         template <typename... T, typename... Args>
         void InitializeComponents(Entity &e, Args &&...args)
