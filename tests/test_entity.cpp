@@ -88,14 +88,14 @@ void TEST_VIEW()
     for (size_t i = 0; i < 10; i++)
     {
         snek::Entity e = world.Spawn();
-        world.InitializeComponents<D, C>(e, (i % 2 == 0 ? i + 1 : i - 1), i + 97);
+        world.InitializeComponents<C, D>(e, (i % 2 == 0 ? i + 1 : i - 1), i + 97);
     }
 
     auto group = world.view<C, D>();
 
     group.for_each([&](const C &c, const D &d)
-                   { std::cout << c.x << std::endl;
-                std::cout << d.c << std::endl; });
+                   { std::cout << "component c : " << c.x << std::endl;
+                std::cout << "component d : " << d.c << std::endl; });
 };
 
 void TEST_REMOVE_COMPONENTS() {};

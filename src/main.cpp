@@ -9,8 +9,7 @@ using namespace snek::internal;
 
 int main(int argc, char **argv)
 {
-
     TEST_VIEW();
-    std::cout << world.size() << std::endl;
+
     return 0;
 }

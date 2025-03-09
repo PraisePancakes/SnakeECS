@@ -30,7 +30,7 @@ namespace snek
 
             constexpr pointer allocate(size_type n)
             {
-                std::cout << "[ ALLOCATED " << n * sizeof(value_type) << " ] bytes where sizeof T : " << sizeof(value_type) << std::endl;
+                std::cout << "[ ALLOCATED " << n * sizeof(value_type) << " bytes ] where sizeof T : " << sizeof(value_type) << std::endl;
                 return static_cast<pointer>(::operator new(n * sizeof(value_type)));
             };
 
