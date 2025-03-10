@@ -66,7 +66,7 @@ namespace snek
 
     public:
         light_view(ComponentStateTable &st, GroupTable &g) : _state_table(st), _groups(g) {};
-        
+
         void for_each(std::function<void(Components &...)> f)
         {
             ComponentMask cmp_mask = (uuid::GenerateComponentID<Components>() | ...);

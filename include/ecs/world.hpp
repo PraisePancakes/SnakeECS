@@ -2,7 +2,7 @@
 #include "entity.hpp"
 #include <unordered_map>
 #include <map>
-#include "verbose_allocator.hpp"
+#include "entity_allocator.hpp"
 #include <algorithm>
 #include "entity.hpp"
 #include "../common_types.hpp"
@@ -14,7 +14,7 @@
 
 namespace snek
 {
-    template <u64 Size, typename Alloc = snek::allocator::verbose_allocator<Entity>>
+    template <u64 Size, typename Alloc = snek::allocator::entity_allocator<Entity>>
     class World
     {
     public:
@@ -58,7 +58,9 @@ namespace snek
                 {
                     throw std::runtime_error("construction overflowed maximum allowed world storage [max = " + std::to_string(max_size) + "]");
                 }
+
                 p->SetID(id);
+
                 return p;
             }
             catch (std::exception &e)
