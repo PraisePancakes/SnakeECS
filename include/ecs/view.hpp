@@ -43,39 +43,36 @@ namespace snek
 
         using underlying_type = WorldType;
         //  auto view = world.view<T, A>();
-        using EntityArray = WorldType::EntityArray;
-        using ComponentArray = WorldType::ComponentArray;
+        using entity_array = WorldType::entity_array;
+        using component_array = WorldType::component_array;
         // where u64 is component mask over set of components.
-        using GroupTable = WorldType::GroupTable;
-        using ComponentStateTable = WorldType::ComponentStateTable;
+        using group_table = WorldType::group_table;
+        using component_state_table = WorldType::component_state_table;
 
         using alloc_traits = WorldType::alloc_traits;
         using value_type = WorldType::value_type;
         using reference = WorldType::reference;
         using const_reference = WorldType::const_reference;
         using pointer = WorldType::pointer;
-        using EntityID = WorldType::EntityID;
-        using ComponentID = WorldType::ComponentID;
-        using ComponentMask = WorldType::ComponentMask;
 
         static_assert((std::is_class_v<Components> && ...),
                       "Component must pass class type trait");
 
-        ComponentStateTable _state_table;
-        GroupTable _groups;
+        component_state_table _state_table;
+        group_table _groups;
 
     public:
-        light_view(ComponentStateTable &st, GroupTable &g) : _state_table(st), _groups(g) {};
+        light_view(component_state_table &st, group_table &g) : _state_table(st), _groups(g) {};
 
         void for_each(std::function<void(Components &...)> f)
         {
-            ComponentMask cmp_mask = (uuid::GenerateComponentID<Components>() | ...);
+            component_mask cmp_mask = (uuid::generate_component_id<Components>() | ...);
             auto archetypes = _groups[cmp_mask];
             for (const auto &e : archetypes)
             {
                 if (!e)
                     continue;
-                f(*reinterpret_cast<Components *>(_state_table[uuid::GenerateComponentID<Components>()][e->GetID()])...);
+                f(*reinterpret_cast<Components *>(_state_table[uuid::generate_component_id<Components>()][*e])...);
             }
         };
 

@@ -14,36 +14,44 @@
 
 namespace snek
 {
-    template <u64 Size, typename Alloc = snek::allocator::entity_allocator<Entity>>
-    class World
+
+    template <entity Size, typename Alloc>
+    class basic_world
+    {
+    };
+
+    template <entity Size, typename Alloc = snek::allocator::entity_allocator<entity>>
+    class world : public basic_world<Size, Alloc>
     {
     public:
-        using underlying_type = World<Size, Alloc>;
+        using underlying_type = world<Size, Alloc>;
         using alloc_traits = std::allocator_traits<Alloc>;
         using value_type = typename alloc_traits::value_type;
+
+        static_assert(std::is_same_v<value_type, u64>, "");
+
         using reference = value_type &;
         using const_reference = const value_type &;
         using pointer = typename alloc_traits::pointer;
-        using EntityID = u64;
-        using ComponentID = u64;
-        using ComponentMask = u64;
 
         // Entity* will store pointer to constructed type from the allocator which holds the object in preallocated memory.
-        using EntityArray = std::array<pointer, Size>;
-        using ComponentArray = std::array<void *, Size>;
+        using entity_array = std::array<pointer, Size>;
+        using component_array = std::array<void *, Size>;
+        using component_mask_array = std::array<component_mask, Size>;
         // where u64 is component mask over set of components.
-        using GroupTable = std::unordered_map<ComponentMask, EntityArray>;
-        using ComponentStateTable = std::unordered_map<ComponentID, ComponentArray>;
-        static constexpr EntityID max_size = Size;
+        using group_table = std::unordered_map<component_mask, entity_array>;
+        using component_state_table = std::unordered_map<component_id, component_array>;
+        static constexpr entity max_size = Size;
 
     private:
-        GroupTable groups;
-        ComponentStateTable cmp_states;
+        group_table groups;
+        component_state_table cmp_states;
+        component_mask_array masks;
         pointer entity_pool;
         Alloc _alloc;
         size_t _active;
 
-        bool running;
+        bool _running;
 
         // region allocated by internal allocator, this region holds a pointer to each entity initialized within that region,
         // the containers in this class will query from this preallocated region and store pointers to those entities.
@@ -52,14 +60,12 @@ namespace snek
         {
             try
             {
-                u64 id = uuid::GenerateEntityID();
+                u64 id = uuid::generate_entity_id();
                 pointer p = std::construct_at(entity_pool + id, std::forward<Args>(args)...);
                 if (!p)
                 {
                     throw std::runtime_error("construction overflowed maximum allowed world storage [max = " + std::to_string(max_size) + "]");
                 }
-
-                p->SetID(id);
 
                 return p;
             }
@@ -71,132 +77,133 @@ namespace snek
         }
 
     public:
-        World()
-            : running(true),
+        world()
+            : _running(true),
               entity_pool(alloc_traits::allocate(_alloc, Size)) {
               };
 
-        World(const World &o)
-            : running(true),
+        world(const world &o)
+            : _running(true),
               entity_pool(o.entity_region) {};
 
-        World(World &&o)
+        world(world &&o)
             : entity_pool(std::move(o._region)),
-              running(true) {};
+              _running(true) {};
 
-        inline void WorldPause() { running = false; };
+        inline void pause() { _running = false; };
 
         template <typename... Args>
-        [[nodiscard]] alloc_traits::value_type &Spawn(Args &&...args)
+        [[nodiscard]] alloc_traits::value_type &spawn(Args &&...args)
         {
             ++_active;
             return *(create_entity(std::forward<Args>(args)...));
         };
 
-        [[nodiscard]] pointer GetEntityById(const u64 id) const
+        [[nodiscard]] pointer get_entity_by_id(const u64 id) const
         {
             return &entity_pool[id];
         }
 
         template <typename C>
-        [[nodiscard]] bool Has(const_reference e) const
+        [[nodiscard]] bool has(const_reference e) const
         {
             SNEK_ASSERT(std::is_class_v<C>, "Component must succeed std::is_class_v<T> type trait");
-            u64 id = uuid::GenerateComponentID<C>();
-            return ((e.GetComponentMask() & id) == id);
+            u64 id = uuid::generate_component_id<C>();
+            return ((masks[e] & id) == id);
         }
 
         template <typename T, typename U, typename... Args>
-        [[nodiscard]] bool HasAny(const_reference e) const noexcept
+        [[nodiscard]] bool has_any(const_reference e) const noexcept
         {
-            return Has<T>(e) || Has<U>(e) || (Has<Args>(e) || ...);
+            return has<T>(e) || has<U>(e) || (has<Args>(e) || ...);
         }
 
         template <typename T, typename U, typename... Args>
-        [[nodiscard]] bool HasAll(const_reference e) const noexcept
+        [[nodiscard]] bool has_all(const_reference e) const noexcept
         {
-            return Has<T>(e) && (Has<U, Args>(e) && ...);
+            return has<T>(e) && (has<U, Args>(e) && ...);
         };
 
         template <typename C, typename... Args>
-        C &Bind(reference e, Args &&...args)
+        C &bind(reference e, Args &&...args)
         {
             // ct guard
             SNEK_ASSERT(std::is_class_v<C>, "Component must succeed std::is_class_v<T> type trait");
 
             // remove from previous group
-            u64 old_mask = e.GetComponentMask();
+            u64 old_mask = masks[e];
             if (groups.size() > 0 && this->groups.find(old_mask) != this->groups.end())
             {
-                EntityArray &archetype_array = this->groups.at(old_mask);
-                auto it = archetype_array.at(e.GetID());
+                entity_array &archetype_array = this->groups.at(old_mask);
+                auto it = archetype_array.at(e);
                 if (it != archetype_array.back())
                 {
-                    archetype_array[e.GetID()] = nullptr;
+                    archetype_array[e] = nullptr;
                 }
             }
             // set new component mask
-            u64 id = uuid::GenerateComponentID<C>();
-            e.SetComponentFlag(id);
+            u64 id = uuid::generate_component_id<C>();
+            masks[e] |= id;
             // construct component
             C *c = new C(std::forward<Args>(args)...);
             // track it
             // --add to new group
-            u64 new_mask = e.GetComponentMask();
-            groups[new_mask][e.GetID()] = &entity_pool[e.GetID()];
+            u64 new_mask = masks[e];
+            groups[new_mask][e] = &entity_pool[e];
             // add to component state table
-            cmp_states[id][e.GetID()] = c;
+            cmp_states[id][e] = c;
 
             return *c;
         };
 
         template <typename T>
-        void RemoveComponent(reference e) noexcept
+        void remove_component(reference e) noexcept
         {
-            if (!HasComponent<T>(e))
+            if (!has<T>(e))
                 return;
             SNEK_ASSERT(std::is_class_v<T>, "Component must succeed std::is_class_v<T> type trait");
-            u64 id = (uuid::GenerateComponentID<T>());
-            u64 old_mask = e.GetComponentMask();
+            u64 id = (uuid::generate_component_id<T>());
+            u64 old_mask = masks[e];
             if (groups.size() > 0 && this->groups.find(old_mask) != this->groups.end())
             {
-                EntityArray &archetype_array = this->groups.at(old_mask);
-                auto it = archetype_array.at(e.GetID());
+                entity_array &archetype_array = this->groups.at(old_mask);
+                auto it = archetype_array.at(e);
                 if (it != archetype_array.back())
                 {
-                    archetype_array[e.GetID()] = nullptr;
+                    archetype_array[e] = nullptr;
                 }
             }
-            e.RemoveComponentFlag(id);
-            u64 new_mask = e.GetComponentMask();
-            groups[new_mask][e.GetID()] = &entity_pool[e.GetID()];
-            cmp_states[id][e.GetID()] = nullptr;
+            masks[e] &= ~(id);
+            u64 new_mask = masks[e];
+            groups[new_mask][e] = &entity_pool[e];
+            cmp_states[id][e] = nullptr;
         };
 
         template <typename T, typename U, typename... Args>
-        void RemoveComponent(reference e) noexcept
+        void remove_component(reference e) noexcept
         {
-            RemoveComponent<T>();
-            RemoveComponent<U>();
-            (RemoveComponent<Args>(), ...);
+            remove_component<T>();
+            remove_component<U>();
+            (remove_component<Args>(), ...);
         };
 
-        [[nodiscard]] bool IsAlive(const_reference e) const
+        [[nodiscard]] bool contains(const_reference e) const
         {
-            return e.IsAlive();
+            // TO DO IMPLEMENT
+            return false;
         }
 
-        void KillEntity(reference e)
+        void kill(reference e)
         {
             // remove from current group;
-            this->groups[e.GetComponentMask()][e.GetID()] = nullptr;
+            this->groups[masks[e]][e] = nullptr;
             // remove all its component states
             for (auto &c : cmp_states)
             {
-                c[e.GetID()] = nullptr;
+                c[e] = nullptr;
             }
             // remove from pool
-            std::destroy_at(entity_pool + e.GetID());
+            std::destroy_at(entity_pool + e);
         }
 
         size_t size() const
@@ -217,30 +224,30 @@ namespace snek
         };
 
         template <typename... T, typename... Args>
-        void Initialize(reference e, Args &&...args)
+        void initialize(reference e, Args &&...args)
         {
-            (Bind<T>(e, std::forward<Args>(args)), ...);
+            (bind<T>(e, std::forward<Args>(args)), ...);
         }
 
         template <typename C>
-        C *GetComponent(const_reference e) noexcept
+        C *get_component(const_reference e) noexcept
         {
-            if (!Has<C>(e))
+            if (!has<C>(e))
             {
                 return nullptr;
             };
 
-            u64 c_id = uuid::GenerateComponentID<C>();
-            return static_cast<C *>(cmp_states[c_id][e.GetID()]);
+            u64 c_id = uuid::generate_component_id<C>();
+            return static_cast<C *>(cmp_states[c_id][e]);
         };
 
-        [[nodiscard]] Alloc &GetWorldAllocator() const noexcept { return _alloc; };
+        [[nodiscard]] Alloc &get_allocator() const noexcept { return _alloc; };
 
-        [[nodiscard]] bool IsRunning() const
+        [[nodiscard]] bool running() const
         {
-            return this->running;
+            return this->_running;
         }
-        ~World() {
+        ~world() {
 
         };
     };

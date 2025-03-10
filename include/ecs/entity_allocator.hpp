@@ -1,5 +1,5 @@
 #pragma once
-#include "entity_traits.hpp"
+#include "entity.hpp"
 
 namespace snek
 {

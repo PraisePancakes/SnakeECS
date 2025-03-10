@@ -1,56 +1,66 @@
 #pragma once
-#include <iostream>
-#include "../common_types.hpp"
-#include "../utils/identifier.hpp"
-
+#include <type_traits>
+#include "../utils/traits.hpp"
+#include <cstdint>
+//  sfinae checks for entity traits
 namespace snek
 {
-    class Entity
+
+    template <typename T, typename = void>
+    struct entity_traits;
+
+    template <typename T>
+    struct entity_traits<T, std::enable_if_t<std::is_class_v<T>>>
     {
-    protected:
-        u64 cmp_mask; // bit mask of components
-        bool is_alive;
-        size_t _id;
+        using value_type = std::underlying_type_t<T>;
+    };
 
-    public:
-        Entity() : _id(), cmp_mask(), is_alive(true) {};
-        Entity(const Entity &other) : _id(other._id), cmp_mask(), is_alive(other.is_alive) {};
-        Entity(Entity &&other) : _id(other._id), cmp_mask(), is_alive(other.is_alive) {};
+    template <typename T>
+    struct entity_traits<T, std::enable_if_t<std::is_enum_v<T>>>
+    {
+        using value_type = std::underlying_type_t<T>;
+    };
 
-        [[nodiscard]] inline u64 GetID() const noexcept
-        {
-            return _id;
-        };
+    template <>
+    struct entity_traits<std::uint32_t>
+    {
+        using value_type = std::uint32_t;
+        using entity_type = std::uint32_t;
 
-        [[nodiscard]] inline u64 GetComponentMask() const noexcept
-        {
-            return cmp_mask;
-        }
+        // will u32 mask over all existing entities
+        static constexpr entity_type entity_mask = 0xFFFFF;
+    };
 
-        void SetID(u64 id) noexcept
-        {
-            _id = id;
-        }
+    template <>
+    struct entity_traits<std::uint64_t>
+    {
+        using value_type = std::uint64_t;
+        using entity_type = std::uint64_t;
 
-        void SetComponentFlag(u64 f)
-        {
-            cmp_mask |= f;
-        };
+        // will u64 mask over all existing entities
+        static constexpr entity_type entity_mask = 0xFFFFF;
+    };
 
-        void RemoveComponentFlag(u64 f)
-        {
-            cmp_mask &= ~(f);
-        }
+    template <typename T, typename MaskType, typename = void>
+    struct has_cmp_mask : std::false_type
+    {
+        using mask_type = void;
+    };
 
-        [[nodiscard]] bool IsAlive() const
-        {
-            return this->is_alive;
-        }
+    template <typename T, typename MaskType>
+    struct has_cmp_mask<T, MaskType, std::void_t<decltype(T::GetComponentMask)>> : std::true_type
+    {
+        using mask_type = decltype(std::declval<T>().GetComponentMask());
+        static_assert(sizeof(MaskType) == sizeof(utils::strip_t<mask_type>));
+    };
 
-        ~Entity()
-        {
-            is_alive = false;
-        };
+    template <typename T, typename U>
+    constexpr static bool has_cmp_mask_v = has_cmp_mask<T, U>::value;
+
+    template <typename Entity, typename MaskType>
+    struct has_snek_entity_traits
+    {
+        constexpr static bool value = (has_cmp_mask<Entity, MaskType>::value);
     };
 
 }

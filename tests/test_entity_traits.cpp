@@ -1,5 +1,5 @@
 
-#include "../include/ecs/entity_traits.hpp"
+#include "../include/ecs/entity.hpp"
 #include <iostream>
 
 static void TEST_ENTITY_TRAITS()

@@ -1,12 +1,11 @@
 #include "../include/ecs/world.hpp"
 
-static snek::World<1000> world;
+static snek::world<1000> world;
 void TEST_ENTITY_ID()
 {
     for (size_t i = 0; i < 10; i++)
     {
-        snek::Entity e = world.Spawn();
-        std::cout << "entity id : " << e.GetID() << std::endl;
+        snek::entity e = world.spawn();
     }
 };
 
@@ -45,9 +44,9 @@ void TEST_COMPONENTS()
 
     for (size_t i = 0; i < 10; i++)
     {
-        snek::Entity e = world.Spawn();
-        world.Bind<A>(e, (i % 2 == 0 ? i + 1 : i - 1));
-        std::cout << "Entity with id : " << i << " has A component [ " << world.GetComponent<A>(e)->x << " ]" << std::endl;
+        snek::entity e = world.spawn();
+        world.bind<A>(e, (i % 2 == 0 ? i + 1 : i - 1));
+        std::cout << "Entity with id : " << i << " has A component [ " << world.get_component<A>(e)->x << " ]" << std::endl;
     }
 };
 
@@ -57,11 +56,11 @@ void TEST_COMPONENT_LIST_INITIALIZER()
 
     for (size_t i = 0; i < 10; i++)
     {
-        snek::Entity e = world.Spawn();
-        world.Initialize<A, B>(e, (i % 2 == 0 ? i + 1 : i - 1), i + 97);
+        snek::entity e = world.spawn();
+        world.initialize<A, B>(e, (i % 2 == 0 ? i + 1 : i - 1), i + 97);
         std::cout << "Entity with id : " << i << std::endl;
-        std::cout << " has A component [ " << world.GetComponent<A>(e)->x << " ]" << std::endl;
-        std::cout << " has B component [ " << world.GetComponent<B>(e)->c << " ]" << std::endl;
+        std::cout << " has A component [ " << world.get_component<A>(e)->x << " ]" << std::endl;
+        std::cout << " has B component [ " << world.get_component<B>(e)->c << " ]" << std::endl;
     }
 };
 
@@ -69,8 +68,8 @@ void TEST_VIEW()
 {
     for (size_t i = 0; i < 10; i++)
     {
-        snek::Entity e = world.Spawn();
-        world.Initialize<C, D>(e, (i % 2 == 0 ? i + 1 : i - 1), i + 97);
+        snek::entity e = world.spawn();
+        world.initialize<C, D>(e, (i % 2 == 0 ? i + 1 : i - 1), i + 97);
     }
 
     auto group = world.view<C, D>();

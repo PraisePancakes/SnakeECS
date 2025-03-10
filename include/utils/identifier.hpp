@@ -7,7 +7,7 @@ namespace snek
     {
         static u64 S_component_id = 0;
 
-        static inline auto GenerateEntityID() noexcept
+        static inline auto generate_entity_id() noexcept
         {
             static u64 new_id = 0;
             u64 old = new_id;
@@ -16,7 +16,7 @@ namespace snek
         };
 
         template <typename Component>
-        static inline auto GenerateComponentID() noexcept
+        static inline auto generate_component_id() noexcept
         {
             static u64 id = S_component_id++;
             return id;
