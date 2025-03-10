@@ -19,10 +19,14 @@ namespace snek
     {
     public:
         using alloc_traits = std::allocator_traits<Alloc>;
+        using value_type = typename alloc_traits::value_type;
+        using reference = value_type &;
+        using const_reference = const value_type &;
         using pointer = typename alloc_traits::pointer;
         using EntityID = u64;
         using ComponentID = u64;
         using ComponentMask = u64;
+
         // Entity* will store pointer to constructed type from the allocator which holds the object in preallocated memory.
         using EntityArray = std::array<pointer, Size>;
         using ComponentArray = std::array<void *, Size>;
@@ -42,13 +46,13 @@ namespace snek
 
         // region allocated by internal allocator, this region holds a pointer to each entity initialized within that region,
         // the containers in this class will query from this preallocated region and store pointers to those entities.
-
-        [[nodiscard]] pointer create_entity()
+        template <typename... Args>
+        [[nodiscard]] pointer create_entity(Args &&...args)
         {
             try
             {
                 u64 id = uuid::GenerateEntityID();
-                pointer p = std::construct_at(entity_pool + id);
+                pointer p = std::construct_at(entity_pool + id, std::forward<Args>(args)...);
                 if (!p)
                 {
                     throw std::runtime_error("construction overflowed maximum allowed world storage [max = " + std::to_string(max_size) + "]");
@@ -79,32 +83,40 @@ namespace snek
 
         inline void WorldPause() { running = false; };
 
-        [[nodiscard]] alloc_traits::value_type &Spawn()
+        template <typename... Args>
+        [[nodiscard]] alloc_traits::value_type &Spawn(Args &&...args)
         {
             ++_active;
-            return *(create_entity());
+            return *(create_entity(std::forward<Args>(args)...));
         };
 
-        [[nodiscard]] snek::Entity *GetEntityById(const u64 id) const
+        [[nodiscard]] pointer GetEntityById(const u64 id) const
         {
             return &entity_pool[id];
         }
 
         template <typename C>
-        [[nodiscard]] bool HasComponent(const Entity &e) const
+        [[nodiscard]] bool Has(const_reference e) const
         {
             SNEK_ASSERT(std::is_class_v<C>, "Component must succeed std::is_class_v<T> type trait");
             u64 id = uuid::GenerateComponentID<C>();
             return ((e.GetComponentMask() & id) == id);
         }
+
         template <typename T, typename U, typename... Args>
-        [[nodiscard]] bool HasComponent(const Entity &e) const noexcept
+        [[nodiscard]] bool HasAny(const_reference e) const noexcept
         {
-            return HasComponent<T>(e) && (HasComponent<U, Args>(e) && ...);
+            return Has<T>(e) || Has<U>(e) || (Has<Args>(e) || ...);
+        }
+
+        template <typename T, typename U, typename... Args>
+        [[nodiscard]] bool HasAll(const_reference e) const noexcept
+        {
+            return Has<T>(e) && (Has<U, Args>(e) && ...);
         };
 
         template <typename C, typename... Args>
-        C &BindComponent(Entity &e, Args &&...args)
+        C &Bind(reference e, Args &&...args)
         {
             // ct guard
             SNEK_ASSERT(std::is_class_v<C>, "Component must succeed std::is_class_v<T> type trait");
@@ -136,7 +148,7 @@ namespace snek
         };
 
         template <typename T>
-        void RemoveComponent(Entity &e) noexcept
+        void RemoveComponent(reference e) noexcept
         {
             if (!HasComponent<T>(e))
                 return;
@@ -159,19 +171,19 @@ namespace snek
         };
 
         template <typename T, typename U, typename... Args>
-        void RemoveComponent(Entity &e) noexcept
+        void RemoveComponent(reference e) noexcept
         {
             RemoveComponent<T>();
             RemoveComponent<U>();
             (RemoveComponent<Args>(), ...);
         };
 
-        [[nodiscard]] bool IsAlive(const Entity &e) const
+        [[nodiscard]] bool IsAlive(const_reference e) const
         {
             return e.IsAlive();
         }
 
-        void KillEntity(Entity &e)
+        void KillEntity(reference e)
         {
             // remove from current group;
             this->groups[e.GetComponentMask()][e.GetID()] = nullptr;
@@ -202,15 +214,15 @@ namespace snek
         };
 
         template <typename... T, typename... Args>
-        void InitializeComponents(Entity &e, Args &&...args)
+        void Initialize(reference e, Args &&...args)
         {
-            (BindComponent<T>(e, std::forward<Args>(args)), ...);
+            (Bind<T>(e, std::forward<Args>(args)), ...);
         }
 
         template <typename C>
-        C *GetComponent(const Entity &e) noexcept
+        C *GetComponent(const_reference e) noexcept
         {
-            if (!HasComponent<C>(e))
+            if (!Has<C>(e))
             {
                 return nullptr;
             };
@@ -218,20 +230,6 @@ namespace snek
             u64 c_id = uuid::GenerateComponentID<C>();
             return static_cast<C *>(cmp_states[c_id][e.GetID()]);
         };
-
-        template <typename... Components>
-        EntityArray GetGroupView()
-        {
-            SNEK_ASSERT((std::is_class_v<Components> && ...),
-                        "Component must pass class type trait");
-            u64 mask = (uuid::GenerateComponentID<Components>() | ...);
-            if (groups.find(mask) == groups.end())
-            {
-                static EntityArray empty_table;
-                return empty_table;
-            }
-            return groups[mask];
-        }
 
         [[nodiscard]] Alloc &GetWorldAllocator() const noexcept { return _alloc; };
 

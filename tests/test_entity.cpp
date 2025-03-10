@@ -46,7 +46,7 @@ void TEST_COMPONENTS()
     for (size_t i = 0; i < 10; i++)
     {
         snek::Entity e = world.Spawn();
-        world.BindComponent<A>(e, (i % 2 == 0 ? i + 1 : i - 1));
+        world.Bind<A>(e, (i % 2 == 0 ? i + 1 : i - 1));
         std::cout << "Entity with id : " << i << " has A component [ " << world.GetComponent<A>(e)->x << " ]" << std::endl;
     }
 };
@@ -58,28 +58,10 @@ void TEST_COMPONENT_LIST_INITIALIZER()
     for (size_t i = 0; i < 10; i++)
     {
         snek::Entity e = world.Spawn();
-        world.InitializeComponents<A, B>(e, (i % 2 == 0 ? i + 1 : i - 1), i + 97);
+        world.Initialize<A, B>(e, (i % 2 == 0 ? i + 1 : i - 1), i + 97);
         std::cout << "Entity with id : " << i << std::endl;
         std::cout << " has A component [ " << world.GetComponent<A>(e)->x << " ]" << std::endl;
         std::cout << " has B component [ " << world.GetComponent<B>(e)->c << " ]" << std::endl;
-    }
-};
-
-void TEST_COMPONENT_GROUPS()
-{
-    std::cout << "[[ COMPONENT GROUP TEST ]]\n.\n.\n." << std::endl;
-
-    for (size_t i = 0; i < 10; i++)
-    {
-        snek::Entity e = world.Spawn();
-        world.InitializeComponents<A, B>(e, (i % 2 == 0 ? i + 1 : i - 1), i + 97);
-    }
-
-    auto group = world.GetGroupView<A, B>();
-    for (auto &e : group)
-    {
-        if (e)
-            std::cout << world.GetComponent<A>(*e)->x << std::endl;
     }
 };
 
@@ -88,14 +70,18 @@ void TEST_VIEW()
     for (size_t i = 0; i < 10; i++)
     {
         snek::Entity e = world.Spawn();
-        world.InitializeComponents<C, D>(e, (i % 2 == 0 ? i + 1 : i - 1), i + 97);
+        world.Initialize<C, D>(e, (i % 2 == 0 ? i + 1 : i - 1), i + 97);
     }
 
     auto group = world.view<C, D>();
 
+    group.for_each([&](C &c, D &d)
+                   { c.x = 1;
+                d.c = 'a'; });
+
     group.for_each([&](const C &c, const D &d)
-                   { std::cout << "component c : " << c.x << std::endl;
-                std::cout << "component d : " << d.c << std::endl; });
+                   { std::cout << c.x << std::endl;
+                    std::cout << d.c << std::endl; });
 };
 
 void TEST_REMOVE_COMPONENTS() {};

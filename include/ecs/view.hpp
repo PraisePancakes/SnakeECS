@@ -12,7 +12,6 @@ namespace snek
     {
 
         //  auto view = world.view<T, A>();
-
         using EntityArray = std::array<Pointer, S>;
         using ComponentArray = std::array<void *, S>;
         // where u64 is component mask over set of components.
@@ -34,12 +33,11 @@ namespace snek
                 std::cout << a.some_value();
             });
         */
-
         void for_each(std::function<void(Components &...)> f)
         {
             u64 cmp_mask = (uuid::GenerateComponentID<Components>() | ...);
             auto archetypes = _groups[cmp_mask];
-            for (Pointer e : archetypes)
+            for (const auto &e : archetypes)
             {
                 if (!e)
                     continue;
