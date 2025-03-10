@@ -208,9 +208,9 @@ namespace snek
         };
 
         template <typename... Cs>
-        snek::light_view<max_size, underlying_type, pointer, Cs...> view()
+        snek::light_view<underlying_type, Cs...> view()
         {
-            snek::light_view<max_size, underlying_type, pointer, Cs...> v(cmp_states, groups);
+            snek::light_view<underlying_type, Cs...> v(cmp_states, groups);
             return v;
         };
 
