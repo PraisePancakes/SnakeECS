@@ -7,16 +7,27 @@
 namespace snek
 {
 
-    template <u64 S, typename Pointer, typename... Components>
+
+
+    template <u64 S, typename WorldType, typename Pointer, typename... Components>
     class light_view
     {
-
+        using underlying_type = WorldType;
         //  auto view = world.view<T, A>();
-        using EntityArray = std::array<Pointer, S>;
-        using ComponentArray = std::array<void *, S>;
+        using EntityArray = WorldType::EntityArray;
+        using ComponentArray = WorldType::ComponentArray;
         // where u64 is component mask over set of components.
-        using GroupTable = std::unordered_map<u64, EntityArray>;
-        using ComponentStateTable = std::unordered_map<u64, ComponentArray>;
+        using GroupTable = WorldType::GroupTable;
+        using ComponentStateTable = WorldType::ComponentStateTable;
+
+        using alloc_traits = WorldType::alloc_traits;
+        using value_type = WorldType::value_type;
+        using reference = WorldType::reference;
+        using const_reference = WorldType::const_reference;
+        using pointer = WorldType::pointer;
+        using EntityID = WorldType::EntityID;
+        using ComponentID = WorldType::ComponentID;
+        using ComponentMask = WorldType::ComponentMask;
 
         static_assert((std::is_class_v<Components> && ...),
                       "Component must pass class type trait");
@@ -35,7 +46,7 @@ namespace snek
         */
         void for_each(std::function<void(Components &...)> f)
         {
-            u64 cmp_mask = (uuid::GenerateComponentID<Components>() | ...);
+            ComponentMask cmp_mask = (uuid::GenerateComponentID<Components>() | ...);
             auto archetypes = _groups[cmp_mask];
             for (const auto &e : archetypes)
             {

@@ -18,6 +18,7 @@ namespace snek
     class World
     {
     public:
+        using underlying_type = World<Size, Alloc>;
         using alloc_traits = std::allocator_traits<Alloc>;
         using value_type = typename alloc_traits::value_type;
         using reference = value_type &;
@@ -207,9 +208,9 @@ namespace snek
         };
 
         template <typename... Cs>
-        snek::light_view<max_size, pointer, Cs...> view()
+        snek::light_view<max_size, underlying_type, pointer, Cs...> view()
         {
-            snek::light_view<max_size, pointer, Cs...> v(cmp_states, groups);
+            snek::light_view<max_size, underlying_type, pointer, Cs...> v(cmp_states, groups);
             return v;
         };
 
