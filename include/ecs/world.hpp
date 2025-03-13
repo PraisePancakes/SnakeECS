@@ -18,44 +18,17 @@ namespace snek
     template <entity Size, typename Alloc>
     class basic_world
     {
-    };
 
-    template <entity Size, typename Alloc = snek::allocator::entity_allocator<entity>>
-    class world : public basic_world<Size, Alloc>
-    {
     public:
-        using underlying_type = world<Size, Alloc>;
         using alloc_traits = std::allocator_traits<Alloc>;
         using value_type = typename alloc_traits::value_type;
-
-        static_assert(std::is_same_v<value_type, u64>, "");
 
         using reference = value_type &;
         using const_reference = const value_type &;
         using pointer = typename alloc_traits::pointer;
-
-        // Entity* will store pointer to constructed type from the allocator which holds the object in preallocated memory.
-        using entity_array = std::array<pointer, Size>;
-        using component_array = std::array<void *, Size>;
-        using component_mask_array = std::array<component_mask, Size>;
-        // where u64 is component mask over set of components.
-        using group_table = std::unordered_map<component_mask, entity_array>;
-        using component_state_table = std::unordered_map<component_id, component_array>;
         static constexpr entity max_size = Size;
 
-    private:
-        group_table groups;
-        component_state_table cmp_states;
-        component_mask_array masks;
-        pointer entity_pool;
-        Alloc _alloc;
-        size_t _active;
-
-        bool _running;
-
-        // region allocated by internal allocator, this region holds a pointer to each entity initialized within that region,
-        // the containers in this class will query from this preallocated region and store pointers to those entities.
-
+    protected:
         [[nodiscard]] pointer create_entity()
         {
             try
@@ -77,31 +50,71 @@ namespace snek
         }
 
     public:
+        pointer entity_pool;
+        Alloc _alloc;
+
+        basic_world() : entity_pool(alloc_traits::allocate(_alloc, Size)) {
+                        };
+        basic_world(const basic_world &o)
+            : entity_pool(o.entity_region) {};
+
+        basic_world(basic_world &&o)
+            : entity_pool(std::move(o._region)) {};
+
+        ~basic_world() {};
+    };
+
+    template <entity Size, typename Alloc = snek::allocator::entity_allocator<entity>>
+    class world : public basic_world<Size, Alloc>
+    {
+    public:
+        using underlying_type = world<Size, Alloc>;
+        using alloc_traits = std::allocator_traits<Alloc>;
+        using value_type = typename alloc_traits::value_type;
+
+        using reference = value_type &;
+        using const_reference = const value_type &;
+        using pointer = typename alloc_traits::pointer;
+
+        // Entity* will store pointer to constructed type from the allocator which holds the object in preallocated memory.
+        using entity_array = std::array<pointer, Size>;
+        using component_array = std::array<void *, Size>;
+        using component_mask_array = std::array<component_mask, Size>;
+        // where u64 is component mask over set of components.
+        using group_table = std::unordered_map<component_mask, entity_array>;
+        using component_state_table = std::unordered_map<component_id, component_array>;
+
+    private:
+        group_table groups;
+        component_state_table cmp_states;
+        component_mask_array masks;
+        size_t _active;
+        bool _running;
+
+        // region allocated by internal allocator, this region holds a pointer to each entity initialized within that region,
+        // the containers in this class will query from this preallocated region and store pointers to those entities.
+
+    public:
         world()
-            : _running(true),
-              entity_pool(alloc_traits::allocate(_alloc, Size)) {
-              };
+            : _running(true) {};
 
         world(const world &o)
-            : _running(true),
-              entity_pool(o.entity_region) {};
+            : _running(true) {};
 
         world(world &&o)
-            : entity_pool(std::move(o._region)),
-              _running(true) {};
+            : _running(true) {};
 
         inline void pause() { _running = false; };
 
         [[nodiscard]] alloc_traits::value_type &spawn()
         {
             ++_active;
-           
-            return *create_entity();
+            return *this->create_entity();
         };
 
         [[nodiscard]] pointer get_entity_by_id(const u64 id) const
         {
-            return &entity_pool[id];
+            return &this->entity_pool[id];
         }
 
         template <typename C>
@@ -149,7 +162,7 @@ namespace snek
             // track it
             // --add to new group
             u64 new_mask = masks[e];
-            groups[new_mask][e] = &entity_pool[e];
+            groups[new_mask][e] = &this->entity_pool[e];
             // add to component state table
             cmp_states[id][e] = c;
 
@@ -175,7 +188,7 @@ namespace snek
             }
             masks[e] &= ~(id);
             u64 new_mask = masks[e];
-            groups[new_mask][e] = &entity_pool[e];
+            groups[new_mask][e] = &this->entity_pool[e];
             cmp_states[id][e] = nullptr;
         };
 
@@ -203,7 +216,7 @@ namespace snek
                 c[e] = nullptr;
             }
             // remove from pool
-            std::destroy_at(entity_pool + e);
+            std::destroy_at(this->entity_pool + e);
         }
 
         size_t size() const
@@ -213,7 +226,7 @@ namespace snek
 
         constexpr u64 capacity()
         {
-            return max_size;
+            return this->max_size;
         };
 
         template <typename... Cs>
@@ -241,7 +254,7 @@ namespace snek
             return static_cast<C *>(cmp_states[c_id][e]);
         };
 
-        [[nodiscard]] Alloc &get_allocator() const noexcept { return _alloc; };
+        [[nodiscard]] Alloc &get_allocator() const noexcept { return this->_alloc; };
 
         [[nodiscard]] bool running() const
         {

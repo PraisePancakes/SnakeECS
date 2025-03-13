@@ -69,7 +69,6 @@ void TEST_VIEW()
     for (size_t i = 0; i < 10; i++)
     {
         snek::entity e = world.spawn();
-        
         world.initialize<C, D>(e, (i % 2 == 0 ? i + 1 : i - 1), i + 97);
     }
 

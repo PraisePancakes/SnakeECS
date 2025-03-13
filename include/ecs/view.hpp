@@ -72,7 +72,7 @@ namespace snek
             {
                 if (!e)
                     continue;
-                f(*reinterpret_cast<Components *>(_state_table[uuid::generate_component_id<Components>()][*e])...);
+                f(*static_cast<Components *>(_state_table[uuid::generate_component_id<Components>()][*e])...);
             }
         };
 
