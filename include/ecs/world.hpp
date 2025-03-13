@@ -61,7 +61,13 @@ namespace snek
         basic_world(basic_world &&o)
             : entity_pool(std::move(o._region)) {};
 
-        ~basic_world() {};
+        virtual ~basic_world()
+        {
+            if (this->entity_pool)
+            {
+                _alloc.deallocate(entity_pool, Size);
+            }
+        };
     };
 
     template <entity Size, typename Alloc = snek::allocator::entity_allocator<entity>>
@@ -202,8 +208,7 @@ namespace snek
 
         [[nodiscard]] bool contains(const_reference e) const
         {
-            // TO DO IMPLEMENT
-            return false;
+            return this->entity_pool[e];
         }
 
         void kill(reference e)
@@ -260,8 +265,10 @@ namespace snek
         {
             return this->_running;
         }
-        ~world() {
-
+        ~world()
+        {
+            _active = 0;
+            _running = false;
         };
     };
 };

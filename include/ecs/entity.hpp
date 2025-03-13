@@ -26,9 +26,6 @@ namespace snek
     {
         using value_type = std::uint32_t;
         using entity_type = std::uint32_t;
-
-        // will u32 mask over all existing entities
-        static constexpr entity_type entity_mask = 0xFFFFF;
     };
 
     template <>
@@ -36,9 +33,6 @@ namespace snek
     {
         using value_type = std::uint64_t;
         using entity_type = std::uint64_t;
-
-        // will u64 mask over all existing entities
-        static constexpr entity_type entity_mask = 0xFFFFF;
     };
 
     template <typename T, typename MaskType, typename = void>

@@ -4,7 +4,7 @@ namespace snek
 {
     namespace utils
     {
-
+        /** DEBUG ONLY */
         template <typename T>
         struct name_of
         {
