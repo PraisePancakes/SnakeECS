@@ -1,9 +1,10 @@
 #include <iostream>
-#include "../tests/test_entity_all.cpp"
+#include <cassert>
+#include "../tests/test_entity.cpp"
 
 int main(int argc, char **argv)
 {
+    TEST_VIEW();
 
-    TEST_ENTITY_ALL();
     return 0;
 }

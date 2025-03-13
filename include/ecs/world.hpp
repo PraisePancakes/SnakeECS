@@ -55,13 +55,13 @@ namespace snek
 
         // region allocated by internal allocator, this region holds a pointer to each entity initialized within that region,
         // the containers in this class will query from this preallocated region and store pointers to those entities.
-        template <typename... Args>
-        [[nodiscard]] pointer create_entity(Args &&...args)
+
+        [[nodiscard]] pointer create_entity()
         {
             try
             {
                 u64 id = uuid::generate_entity_id();
-                pointer p = std::construct_at(entity_pool + id, std::forward<Args>(args)...);
+                pointer p = std::construct_at(entity_pool + id, id);
                 if (!p)
                 {
                     throw std::runtime_error("construction overflowed maximum allowed world storage [max = " + std::to_string(max_size) + "]");
@@ -92,11 +92,11 @@ namespace snek
 
         inline void pause() { _running = false; };
 
-        template <typename... Args>
-        [[nodiscard]] alloc_traits::value_type &spawn(Args &&...args)
+        [[nodiscard]] alloc_traits::value_type &spawn()
         {
             ++_active;
-            return *(create_entity(std::forward<Args>(args)...));
+           
+            return *create_entity();
         };
 
         [[nodiscard]] pointer get_entity_by_id(const u64 id) const
