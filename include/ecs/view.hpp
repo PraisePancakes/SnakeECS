@@ -68,14 +68,14 @@ namespace snek
             return _state_table[c_id][id];
         }
 
-    public:
-        light_view(component_state_table &st, group_table &g) : _state_table(st), _groups(g) {};
-
-        // all_contains returns true if id can be found for each component state
-        bool all_contains(const value_type &id)
+        // contains returns true if id can be found for each component state
+        bool contains(const value_type &id)
         {
             return (check_contains<Components>(id) && ...);
         }
+
+    public:
+        light_view(component_state_table &st, group_table &g) : _state_table(st), _groups(g) {};
 
         void for_each(std::function<void(Components &...)> f)
         {
@@ -83,9 +83,10 @@ namespace snek
             auto archetypes = _groups[cmp_mask];
             for (const auto &e : archetypes)
             {
-                if (!e)
-                    continue;
-                f(*static_cast<Components *>(_state_table[uuid::generate_component_id<Components>()][*e])...);
+                if (contains(*e))
+                {
+                    f(*static_cast<Components *>(_state_table[uuid::generate_component_id<Components>()][*e])...);
+                }
             }
         };
 

@@ -9,18 +9,6 @@ namespace snek
     template <typename T, typename = void>
     struct entity_traits;
 
-    template <typename T>
-    struct entity_traits<T, std::enable_if_t<std::is_class_v<T>>>
-    {
-        using value_type = std::underlying_type_t<T>;
-    };
-
-    template <typename T>
-    struct entity_traits<T, std::enable_if_t<std::is_enum_v<T>>>
-    {
-        using value_type = std::underlying_type_t<T>;
-    };
-
     template <>
     struct entity_traits<std::uint32_t>
     {
