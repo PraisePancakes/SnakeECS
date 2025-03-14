@@ -83,10 +83,9 @@ namespace snek
             auto archetypes = _groups[cmp_mask];
             for (const auto &e : archetypes)
             {
-                if (contains(*e))
-                {
-                    f(*static_cast<Components *>(_state_table[uuid::generate_component_id<Components>()][*e])...);
-                }
+                if (!e)
+                    continue;
+                f(*static_cast<Components *>(_state_table[uuid::generate_component_id<Components>()][*e])...);
             }
         };
 

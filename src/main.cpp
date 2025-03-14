@@ -4,6 +4,7 @@
 
 int main(int argc, char **argv)
 {
+    TEST_VIEW();
 
     return 0;
 }
