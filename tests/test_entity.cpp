@@ -50,6 +50,19 @@ void TEST_COMPONENTS()
     }
 };
 
+void TEST_WORLD_FOR_EACH_STRICTLY()
+{
+    std::cout << "[[ FOR EACH : STRICTLY ONE COMPONENT ]]\n.\n.\n." << std::endl;
+    for (size_t i = 0; i < 10; i++)
+    {
+        snek::entity e = world.spawn();
+        world.initialize<A, B>(e, (i % 2 == 0 ? i + 1 : i - 1), i + 97);
+    }
+
+    world.for_each<A>([](A &a)
+                      { std::cout << a.x << std::endl; });
+};
+
 void TEST_COMPONENT_LIST_INITIALIZER()
 {
     std::cout << "[[ COMPONENT LIST INITIALIZER TEST ]]\n.\n.\n." << std::endl;
