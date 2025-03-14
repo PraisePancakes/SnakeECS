@@ -68,14 +68,13 @@ namespace snek
             return _state_table[c_id][id];
         }
 
-        // contains returns true if id can be found for each component state
+    public:
+        light_view(component_state_table &st, group_table &g) : _state_table(st), _groups(g) {};
+        // contains returns true if id can be found for each view component state
         bool contains(const value_type &id)
         {
             return (check_contains<Components>(id) && ...);
         }
-
-    public:
-        light_view(component_state_table &st, group_table &g) : _state_table(st), _groups(g) {};
 
         void for_each(std::function<void(Components &...)> f)
         {

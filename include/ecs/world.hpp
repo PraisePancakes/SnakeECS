@@ -102,13 +102,13 @@ namespace snek
 
     public:
         world()
-            : _running(true) {};
+            : groups{}, cmp_states{}, masks{}, _active{}, _running(true) {};
 
         world(const world &o)
-            : _running(true) {};
+            : groups{o.groups}, cmp_states{o.cmp_states}, masks{o.masks}, _active{o._active}, _running(true) {};
 
         world(world &&o)
-            : _running(true) {};
+            : groups{std::move(o.groups)}, cmp_states{std::move(o.cmp_states)}, masks{std::move(o.masks)}, _active{o._active}, _running(true) {};
 
         inline void pause() { _running = false; };
 
