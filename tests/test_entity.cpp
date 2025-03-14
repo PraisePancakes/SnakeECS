@@ -83,6 +83,18 @@ void TEST_VIEW()
                     std::cout << d.c << std::endl; });
 };
 
+void TEST_VIEW_ALL_CONTAINS()
+{
+    for (size_t i = 0; i < 10; i++)
+    {
+        snek::entity e = world.spawn();
+        world.initialize<C, D>(e, (i % 2 == 0 ? i + 1 : i - 1), i + 97);
+    }
+
+    auto group = world.view<C, D>();
+    std::cout << std::boolalpha << group.all_contains(9) << std::endl;
+}
+
 void TEST_REMOVE_COMPONENTS() {};
 void TEST_KILL_ENTITY() {};
 void TEST_IS_ALIVE() {};

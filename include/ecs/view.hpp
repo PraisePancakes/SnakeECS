@@ -61,8 +61,21 @@ namespace snek
         component_state_table _state_table;
         group_table _groups;
 
+        template <typename C>
+        bool check_contains(const value_type &id)
+        {
+            auto c_id = uuid::generate_component_id<C>();
+            return _state_table[c_id][id];
+        }
+
     public:
         light_view(component_state_table &st, group_table &g) : _state_table(st), _groups(g) {};
+
+        // all_contains returns true if id can be found for each component state
+        bool all_contains(const value_type &id)
+        {
+            return (check_contains<Components>(id) && ...);
+        }
 
         void for_each(std::function<void(Components &...)> f)
         {
@@ -76,7 +89,7 @@ namespace snek
             }
         };
 
-        ~light_view() {};
+        ~light_view() = default;
     };
 
 }

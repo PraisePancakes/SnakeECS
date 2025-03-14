@@ -4,7 +4,7 @@
 
 int main(int argc, char **argv)
 {
-    TEST_VIEW();
+    TEST_VIEW_ALL_CONTAINS();
 
     return 0;
 }
