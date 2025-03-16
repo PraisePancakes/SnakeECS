@@ -211,23 +211,7 @@ namespace snek
             return this->entity_pool[e];
         }
 
-        // filter entities that contain any of these components;
-        // <A>
-        // [e(A, B, C), e(A, C), e(B, A)]
-        template <typename C>
-        void for_each(std::function<void(C &)> f)
-        {
-
-            auto c_id = uuid::generate_component_id<C>();
-            for (size_t i = 0; i < Size; i++)
-            {
-                if (!cmp_states[c_id][i])
-                    continue;
-                f(*static_cast<C *>(cmp_states[c_id][i]));
-            }
-        }
-
-        void kill(reference e)
+            void kill(reference e)
         {
             // remove from current group;
             this->groups[masks[e]][e] = nullptr;

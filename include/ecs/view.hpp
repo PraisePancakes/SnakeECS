@@ -54,38 +54,52 @@ namespace snek
         using reference = WorldType::reference;
         using const_reference = WorldType::const_reference;
         using pointer = WorldType::pointer;
+        static constexpr size_t max_size = WorldType::max_size;
 
         static_assert((std::is_class_v<Components> && ...),
                       "Component must pass class type trait");
 
         component_state_table _state_table;
         group_table _groups;
-
-        template <typename C>
-        bool check_contains(const value_type &id)
+        void process_multicomponent_view(const component_mask &mask, std::function<void(Components &...)> f)
         {
-            auto c_id = uuid::generate_component_id<C>();
-            return _state_table[c_id][id];
+            for (const auto &g : _groups)
+            {
+                if ((mask & g.first) != g.first)
+                    continue;
+                for (const auto &e : g.second)
+                {
+                    if (!e)
+                        continue;
+                    f(*static_cast<Components *>(_state_table[uuid::generate_component_id<Components>()][*e])...);
+                }
+            }
+        };
+
+        void process_singlecomponent_view(const component_mask &mask, std::function<void(Components &...)> f)
+        {
+
+            for (size_t i = 0; i < max_size; i++)
+            {
+                if (!_state_table[mask][i])
+                    continue;
+                f(*static_cast<Components *>(_state_table[mask][i])...);
+            }
         }
 
     public:
         light_view(component_state_table &st, group_table &g) : _state_table(st), _groups(g) {};
 
-        // contains returns true if id can be found for each view component state
-        bool contains(const value_type &id)
-        {
-            return (check_contains<Components>(id) && ...);
-        }
-
         void for_each(std::function<void(Components &...)> f)
         {
             component_mask cmp_mask = (uuid::generate_component_id<Components>() | ...);
-            auto archetypes = _groups[cmp_mask];
-            for (const auto &e : archetypes)
+            if constexpr (sizeof...(Components) > 1)
             {
-                if (!e)
-                    continue;
-                f(*static_cast<Components *>(_state_table[uuid::generate_component_id<Components>()][*e])...);
+                process_multicomponent_view(cmp_mask, f);
+            }
+            else
+            {
+                process_singlecomponent_view(cmp_mask, f);
             }
         };
 

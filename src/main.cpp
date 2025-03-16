@@ -4,7 +4,7 @@
 
 int main(int argc, char **argv)
 {
-    TEST_ENTITY_ALL();
+    TEST_VIEW_SINGLE_COMPONENT_POLICY();
 
     return 0;
 }

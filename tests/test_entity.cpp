@@ -50,17 +50,17 @@ void TEST_COMPONENTS()
     }
 };
 
-void TEST_WORLD_FOR_EACH_STRICTLY()
+void TEST_VIEW_SINGLE_COMPONENT_POLICY()
 {
-    std::cout << "[[ FOR EACH : STRICTLY ONE COMPONENT ]]\n.\n.\n." << std::endl;
+    std::cout << "[[ VIEW FOR EACH : STRICTLY ONE COMPONENT ]]\n.\n.\n." << std::endl;
     for (size_t i = 0; i < 10; i++)
     {
         snek::entity e = world.spawn();
         world.initialize<A, B>(e, (i % 2 == 0 ? i + 1 : i - 1), i + 97);
     }
-
-    world.for_each<A>([](A &a)
-                      { std::cout << a.x << std::endl; });
+    auto view = world.view<A>();
+    view.for_each([](A &a)
+                  { std::cout << a.x << std::endl; });
 };
 
 void TEST_COMPONENT_LIST_INITIALIZER()
