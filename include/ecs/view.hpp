@@ -63,6 +63,7 @@ namespace snek
         group_table _groups;
         void process_multicomponent_view(const component_mask &mask, std::function<void(Components &...)> f)
         {
+            // TO DO on view construction, take a pool of all these entities instead of checking at runtime
             for (const auto &g : _groups)
             {
                 if ((mask & g.first) != g.first)
@@ -87,8 +88,12 @@ namespace snek
             }
         }
 
+       
+
     public:
-        light_view(component_state_table &st, group_table &g) : _state_table(st), _groups(g) {};
+        light_view(component_state_table &st, group_table &g) : _state_table(st), _groups(g) {
+
+                                                                };
 
         void for_each(std::function<void(Components &...)> f)
         {
