@@ -1,10 +1,9 @@
 #pragma once
 #include <iostream>
-#include "../ecs/world.hpp"
+#include "../ecs/world_policy.hpp"
 
 #define _SNEK_CONFIG true
 #ifdef _SNEK_CONFIG
-
 
 namespace config
 {

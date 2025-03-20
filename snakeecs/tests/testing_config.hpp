@@ -1,2 +1,3 @@
 
 #define _SNEK_COMPONENT_TYPE_STATIC_TEST_ true
+#define _SNEK_WORLD_POLICY_STATIC_TEST_ true
