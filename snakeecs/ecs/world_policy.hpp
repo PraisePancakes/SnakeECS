@@ -1,5 +1,6 @@
 #pragma once
 #include "../utils/utils.hpp"
+#include "entity.hpp"
 
 namespace snek
 {
@@ -12,20 +13,23 @@ namespace snek
     {
         using entity_index_t = EntityT;
         using component_list = ComponentList;
+        static_assert(snek::entity::is_entity_type<EntityT>::value, "invalid entity type, entities can be of the following types : uint64_t , uint32_t");
 
         template <typename C>
         [[nodiscard]] static constexpr size_t get_component_type_id()
         {
+
             return snek::utils::index_of<C, component_list>();
         };
 
         template <typename C>
         [[nodiscard]] static constexpr bool is_valid_component()
         {
+
             return (snek::utils::index_of<C, component_list>() != -1);
         };
     };
-    
+
     template <typename... Cs>
     using component_list = snek::utils::type_list<Cs...>;
 }

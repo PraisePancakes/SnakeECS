@@ -18,11 +18,15 @@ namespace snek
     template <typename Policy>
     class world
     {
+       
+
+    public:
         using world_policy = Policy;
+
+    private:
         using entity_type = Policy::entity_index_t;
         using component_list = Policy::component_list;
         using identifier_type = snek::uuid::identifier<Policy>;
-        static_assert(snek::entity::is_entity_type<entity_type>::value);
 
         snek::storage::page_storage<entity_type> entity_store;
 

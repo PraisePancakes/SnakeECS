@@ -5,13 +5,14 @@
 
 namespace snek
 {
-  
 
     namespace entity
     {
 
         template <typename T>
-        struct entity_traits;
+        struct entity_traits
+        {
+        };
 
         template <>
         struct entity_traits<std::uint64_t>
@@ -25,14 +26,15 @@ namespace snek
             using value_type = std::uint32_t;
         };
 
-        template <typename T, typename = void>
-        struct is_entity_type : std::false_type
+              template <typename T, typename = void>
+        struct is_entity_type
         {
+            static constexpr bool value = false;
         };
-
         template <typename T>
-        struct is_entity_type<T, std::void_t<typename entity_traits<T>::value_type>> : std::true_type
+        struct is_entity_type<T, std::void_t<typename entity_traits<T>::value_type>>
         {
+            static constexpr bool value = true;
         };
 
     }
