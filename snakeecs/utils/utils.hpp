@@ -134,6 +134,5 @@ namespace snek
 
     }
 
-    template <typename... Cs>
-    using component_list = snek::utils::type_list<Cs...>;
+   
 }

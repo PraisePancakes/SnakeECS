@@ -3,6 +3,7 @@
 
 namespace snek
 {
+
     template <typename EntityT, typename ComponentList>
     struct world_policy;
 
@@ -24,4 +25,7 @@ namespace snek
             return (snek::utils::index_of<C, component_list>() != -1);
         };
     };
+    
+    template <typename... Cs>
+    using component_list = snek::utils::type_list<Cs...>;
 }
