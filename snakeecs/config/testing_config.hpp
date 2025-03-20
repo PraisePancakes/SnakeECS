@@ -1,0 +1,2 @@
+
+#define _SNEK_COMPONENT_TYPE_STATIC_TEST_ true

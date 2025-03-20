@@ -8,6 +8,7 @@
 #include "../utils/utils.hpp"
 #include "../utils/identifier.hpp"
 #include "entity.hpp"
+#include "../debug/debug.hpp"
 
 namespace snek
 {
@@ -33,6 +34,7 @@ namespace snek
     template <typename T>
     class page_storage
     {
+
         std::vector<std::array<T, PAGE_SIZE>> pages;
         static constexpr auto tombstone_v = snek::tombstone_t<T>::null_v;
         void resize(size_t new_size)
@@ -45,14 +47,18 @@ namespace snek
     public:
         explicit page_storage(size_t size)
         {
-            std::clog << "basic storage T : " << snek::utils::type_descriptor<T>().stringify() << std::endl;
             resize(size);
+#ifdef _SNEK_DEBUG_
+            LOG("basic storage T : " + snek::utils::type_descriptor<T>().stringify());
+#endif
         };
 
         explicit page_storage()
         {
-            std::clog << "basic storage T : " << snek::utils::type_descriptor<T>().stringify() << std::endl;
             resize(10);
+#ifdef _SNEK_DEBUG_
+            LOG("basic storage T : " + snek::utils::type_descriptor<T>().stringify());
+#endif
         };
 
         void insert(size_t id, T what)
@@ -63,7 +69,9 @@ namespace snek
             if (page >= pages.size())
             {
                 resize(page * 2);
-                std::cout << "resized : " << pages.size() << std::endl;
+#ifdef _SNEK_DEBUG_
+                LOG("basic storage T : " + snek::utils::type_descriptor<T>().stringify());
+#endif
             }
             pages[page][index] = what;
         }
