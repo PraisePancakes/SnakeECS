@@ -49,6 +49,15 @@
         "xtr1common": "cpp",
         "xutility": "cpp",
         "vector": "cpp",
-        "array": "cpp"
+        "array": "cpp",
+        "algorithm": "cpp",
+        "optional": "cpp",
+        "bitset": "cpp",
+        "chrono": "cpp",
+        "forward_list": "cpp",
+        "iomanip": "cpp",
+        "ratio": "cpp",
+        "sstream": "cpp",
+        "string": "cpp"
     }
 }
