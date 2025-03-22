@@ -13,7 +13,7 @@ using std::chrono::milliseconds;
 void BMARK_PAGE_STORAGE_INSERT()
 {
     std::vector<int> vec;
-    snek::storage::page_storage<int> vec1;
+    snek::storage::page_storage<int, std::allocator<int>> vec1;
 
     auto t1 = high_resolution_clock::now();
     for (size_t i = 0; i < 9000; i++)
@@ -41,7 +41,7 @@ void BMARK_PAGE_STORAGE_INSERT()
 void BMARK_PAGE_STORAGE_GET()
 {
     std::vector<int> vec;
-    snek::storage::page_storage<int> vec1;
+    snek::storage::page_storage<int, std::allocator<int>> vec1;
 
     for (size_t i = 0; i < 9000; i++)
     {

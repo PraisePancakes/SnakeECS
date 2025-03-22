@@ -4,17 +4,20 @@
 #include <vector>
 #include "../utils/type_descriptor.hpp"
 #include "../ecs/traits.hpp"
+#include <memory>
 
 namespace snek
 {
     namespace storage
     {
 #define PAGE_SIZE 4
-        template <typename T>
+        template <typename T, typename Alloc>
         class page_storage
         {
+            typedef std::array<T, PAGE_SIZE> page_array_t;
+            typedef typename std::allocator_traits<Alloc>::rebind_alloc<page_array_t> internal_allocator;
+            std::vector<page_array_t, internal_allocator> pages;
 
-            std::vector<std::array<T, PAGE_SIZE>> pages;
             static constexpr auto tombstone_v = snek::traits::tombstone_t<T>::null_v;
             void resize(size_t new_size)
             {

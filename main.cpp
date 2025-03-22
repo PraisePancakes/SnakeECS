@@ -10,6 +10,6 @@ int main(int argc, char **argv)
 {
 
     snek::world<snek::test_config::configuration_policy> world;
-    
+
     return 0;
 }

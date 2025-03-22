@@ -23,7 +23,7 @@ namespace snek
         using component_list = Policy::component_list;
         using allocator_type = Policy::allocator_type;
 
-        snek::storage::page_storage<entity_type> entity_store;
+        snek::storage::page_storage<entity_type, allocator_type> entity_store;
 
         allocator_type alloc;
 
