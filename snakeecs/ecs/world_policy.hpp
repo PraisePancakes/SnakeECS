@@ -1,11 +1,15 @@
 #pragma once
 #include "../utils/type_list.hpp"
 #include "entity.hpp"
-
+#include "../utils/traits/snek_traits.hpp"
 namespace snek
 {
+    // config policy
+    //@params
+    // #ENTITY_TYPE
+    // #COMPONENT_TYPE
+    // #ALLOCATOR_TYPE
 
-   
     template <typename EntityT, typename ComponentList, typename AllocatorT>
     struct world_policy;
 
@@ -14,8 +18,10 @@ namespace snek
     {
         using entity_index = EntityT;
         using component_list = ComponentList;
-        using AllocatorT =
-            static_assert(snek::entity::is_entity_type<EntityT>::value, "invalid entity type, entities can be of the following types : uint64_t , uint32_t");
+        using allocator_type = AllocatorT;
+
+        static_assert(snek::entity::is_entity_type<EntityT>::value, "EntityT must meet following type requirements : uint64_t , uint32_t");
+        static_assert(snek::traits::type_is_allocator<AllocatorT>::value, "AllocatorT must meet allocator requirements");
 
         template <typename C>
         [[nodiscard]] static constexpr size_t get_component_type_id()

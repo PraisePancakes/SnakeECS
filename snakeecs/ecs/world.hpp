@@ -1,13 +1,9 @@
 #pragma once
-#include "../core/verbose_allocator.hpp"
-#include <cstdint>
 #include <iostream>
-#include <limits>
 #include <vector>
 #include <array>
 #include "../utils/type_list.hpp"
 #include "../core/storage.hpp"
-#include "entity.hpp"
 #include "../debug/debug.hpp"
 #include "world_policy.hpp"
 #include "traits.hpp"
