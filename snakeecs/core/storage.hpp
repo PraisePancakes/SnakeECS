@@ -15,7 +15,7 @@ namespace snek
         class page_storage
         {
             typedef std::array<T, PAGE_SIZE> page_array_t;
-            typedef typename std::allocator_traits<Alloc>::rebind_alloc<page_array_t> internal_allocator;
+            typedef std::allocator_traits<Alloc>::template rebind_alloc<page_array_t> internal_allocator;
             std::vector<page_array_t, internal_allocator> pages;
 
             static constexpr auto tombstone_v = snek::traits::tombstone_t<T>::null_v;
@@ -58,7 +58,7 @@ namespace snek
                 pages[page][index] = what;
             }
 
-            [[nodiscard]] T get(size_t id)
+            [[nodiscard]] T get(size_t id) const noexcept
             {
                 size_t page = id / PAGE_SIZE;
                 size_t index = id % PAGE_SIZE;
@@ -69,6 +69,17 @@ namespace snek
                 }
 
                 return tombstone_v;
+            }
+
+            [[nodiscard]] bool contains(size_t id) const noexcept
+            {
+                size_t page = id / PAGE_SIZE;
+                size_t index = id % PAGE_SIZE;
+                if (page < pages.size() && pages[page][index] != tombstone_v)
+                {
+                    return true;
+                }
+                return false;
             }
 
             ~page_storage() {};

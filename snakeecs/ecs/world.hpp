@@ -40,6 +40,17 @@ namespace snek
         {
             return entity_store.get(id) != snek::traits::tombstone_t<entity_type>::null_v;
         }
+
+        template <typename C, typename... Args>
+        C &bind(entity_type e, Args &&...args)
+        {
+            static_assert(world_policy::template is_valid_component<C>(), "C must be a registered component. ");
+        }
+
+        [[nodiscard]] allocator_type &get_allocator() const noexcept
+        {
+            return alloc;
+        }
         ~world() {};
     };
 }
