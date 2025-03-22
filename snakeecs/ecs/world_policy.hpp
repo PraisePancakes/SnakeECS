@@ -5,15 +5,17 @@
 namespace snek
 {
 
-    template <typename EntityT, typename ComponentList>
+   
+    template <typename EntityT, typename ComponentList, typename AllocatorT>
     struct world_policy;
 
-    template <typename EntityT, typename ComponentList>
+    template <typename EntityT, typename ComponentList, typename AllocatorT>
     struct world_policy
     {
         using entity_index = EntityT;
         using component_list = ComponentList;
-        static_assert(snek::entity::is_entity_type<EntityT>::value, "invalid entity type, entities can be of the following types : uint64_t , uint32_t");
+        using AllocatorT =
+            static_assert(snek::entity::is_entity_type<EntityT>::value, "invalid entity type, entities can be of the following types : uint64_t , uint32_t");
 
         template <typename C>
         [[nodiscard]] static constexpr size_t get_component_type_id()

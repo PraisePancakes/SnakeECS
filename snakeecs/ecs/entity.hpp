@@ -26,7 +26,7 @@ namespace snek
             using value_type = std::uint32_t;
         };
 
-              template <typename T, typename = void>
+        template <typename T, typename = void>
         struct is_entity_type
         {
             static constexpr bool value = false;
