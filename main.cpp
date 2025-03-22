@@ -9,7 +9,7 @@
 int main(int argc, char **argv)
 {
 
-    snek::world_policy<int, snek::test_config::component_types, std::allocator<int>> policy;
-
+    snek::world<snek::test_config::configuration_policy> world;
+    
     return 0;
 }

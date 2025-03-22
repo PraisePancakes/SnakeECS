@@ -49,13 +49,24 @@ namespace snek
         };
 
         template <typename T, typename = void>
+        struct has_deallocate : std::false_type
+        {
+        };
+
+        template <typename T>
+        struct has_deallocate<T,
+                              std::void_t<decltype(std::declval<T>().deallocate(std::declval<typename T::value_type *>(), std::declval<size_t>()))>> : std::true_type
+        {
+        };
+
+        template <typename T, typename = void>
         struct type_is_allocator : std::false_type
         {
         };
 
         template <typename T>
         struct type_is_allocator<T,
-                                 std::void_t<std::enable_if_t<has_allocate<T>::value && has_value_type_v<T>>>>
+                                 std::void_t<std::enable_if_t<has_allocate<T>::value && has_value_type_v<T> && has_deallocate<T>::value>>>
             : std::true_type
         {
         };

@@ -21,11 +21,15 @@ namespace snek
     private:
         using entity_type = Policy::entity_index;
         using component_list = Policy::component_list;
+        using allocator_type = Policy::allocator_type;
 
         snek::storage::page_storage<entity_type> entity_store;
 
+        allocator_type alloc;
+
     public:
         world() : entity_store() {};
+        world(allocator_type &a) : alloc(a) {};
         [[nodiscard]] entity_type spawn()
         {
             entity_type id = world_policy::generate_entity_id();
