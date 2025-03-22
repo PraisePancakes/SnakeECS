@@ -84,6 +84,46 @@ namespace snek
 
             ~page_storage() {};
         };
+
+        class polymorphic_sparse_set
+        {
+            [[nodiscard]] virtual size_t size() const = 0;
+            [[nodiscard]] virtual void *get(size_t id) const = 0;
+            [[nodiscard]] virtual bool contains(size_t id) const = 0;
+            virtual ~polymorphic_sparse_set() = 0;
+        };
+
+#include "../ecs/traits.hpp"
+
+        template <typename T>
+        class spase_set : public polymorphic_sparse_set
+        {
+            std::vector<T> _dense;
+            std::vector<size_t> _sparse;
+            
+            constexpr static auto tombstone_v = snek::traits::tombstone_t<T>::value;
+
+        public:
+            sparse_set()
+            {
+                _sparse.reserve(50);
+            };
+            sparse_set(size_t initial) {};
+            size_t size() const override
+            {
+                return _dense.size();
+            };
+
+            T *get(size_t id) const override
+            {
+                return nullptr;
+            };
+
+            bool contains(size_t id) const override
+            {
+                return false;
+            };
+        };
     }
 
 }
