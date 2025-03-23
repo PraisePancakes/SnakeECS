@@ -85,25 +85,25 @@ namespace snek
             ~page_storage() {};
         };
 
-        class polymorphic_sparse_set
+        struct polymorphic_sparse_set
         {
             virtual size_t size() const = 0;
             virtual bool contains(size_t id) const = 0;
             virtual void clear() = 0;
             virtual void remove(size_t id) = 0;
-            virtual ~polymorphic_sparse_set() = 0;
+            virtual ~polymorphic_sparse_set() {};
         };
 
 #include "../ecs/traits.hpp"
 
         template <typename T>
-        class spase_set : public polymorphic_sparse_set
+        class sparse_set : public polymorphic_sparse_set
         {
             // where T is a single component type
             std::vector<T> _dense;       // elements (components) in domain
             std::vector<size_t> _sparse; // will map the entity id to given component object in dense domain.
 
-            constexpr static auto tombstone_v = snek::traits::tombstone_t<T>::value;
+            constexpr static auto tombstone_v = snek::traits::tombstone_t<T>::null_v;
 
         public:
             sparse_set()
@@ -122,12 +122,14 @@ namespace snek
 
             void set(size_t id, T elem)
             {
+
                 _sparse[id] = _dense.size();
                 _dense.push_back(elem);
             };
 
             [[nodiscard]] T *get(size_t id) const
             {
+
                 size_t index = _sparse[id];
                 if (index != tombstone_v)
                 {
@@ -138,6 +140,7 @@ namespace snek
 
             void remove(size_t id) override
             {
+
                 size_t index = _sparse[id];
                 if (index == tombstone_v)
                 {
@@ -150,6 +153,11 @@ namespace snek
                 _dense.pop_back();
             };
 
+            [[nodiscard]] bool contains(size_t id)
+            {
+                return (id < _sparse.size() && _sparse[id] < _dense.size() && _dense[_sparse[id]] == id);
+            };
+
             void clear() override
             {
                 _dense.clear();
@@ -160,6 +168,8 @@ namespace snek
             {
                 return false;
             };
+
+            ~sparse_set() {};
         };
     }
 
