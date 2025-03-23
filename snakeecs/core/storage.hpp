@@ -87,9 +87,10 @@ namespace snek
 
         class polymorphic_sparse_set
         {
-            [[nodiscard]] virtual size_t size() const = 0;
-            [[nodiscard]] virtual void *get(size_t id) const = 0;
-            [[nodiscard]] virtual bool contains(size_t id) const = 0;
+            virtual size_t size() const = 0;
+            virtual bool contains(size_t id) const = 0;
+            virtual void clear() = 0;
+            virtual void remove(size_t id) = 0;
             virtual ~polymorphic_sparse_set() = 0;
         };
 
@@ -98,9 +99,10 @@ namespace snek
         template <typename T>
         class spase_set : public polymorphic_sparse_set
         {
-            std::vector<T> _dense;
-            std::vector<size_t> _sparse;
-            
+            // where T is a single component type
+            std::vector<T> _dense;       // elements (components) in domain
+            std::vector<size_t> _sparse; // will map the entity id to given component object in dense domain.
+
             constexpr static auto tombstone_v = snek::traits::tombstone_t<T>::value;
 
         public:
@@ -108,18 +110,53 @@ namespace snek
             {
                 _sparse.reserve(50);
             };
-            sparse_set(size_t initial) {};
-            size_t size() const override
+            sparse_set(size_t initial)
+            {
+                _sparse.reserve(initial);
+            };
+
+            [[nodiscard]] size_t size() const override
             {
                 return _dense.size();
             };
 
-            T *get(size_t id) const override
+            void set(size_t id, T elem)
             {
+                _sparse[id] = _dense.size();
+                _dense.push_back(elem);
+            };
+
+            [[nodiscard]] T *get(size_t id) const
+            {
+                size_t index = _sparse[id];
+                if (index != tombstone_v)
+                {
+                    return &_dense[index];
+                }
                 return nullptr;
             };
 
-            bool contains(size_t id) const override
+            void remove(size_t id) override
+            {
+                size_t index = _sparse[id];
+                if (index == tombstone_v)
+                {
+                    return;
+                }
+                _dense.pop_back();
+                _sparse[id] = tombstone_v;
+
+                std::swap(_dense[index], _dense.back());
+                _dense.pop_back();
+            };
+
+            void clear() override
+            {
+                _dense.clear();
+                _sparse.clear();
+            };
+
+            [[nodiscard]] bool contains(size_t id) const override
             {
                 return false;
             };
