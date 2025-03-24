@@ -7,15 +7,20 @@
 #include <map>
 #include "snakeecs/core/storage.hpp"
 
+struct A
+{
+    int x;
+    A(int x) : x(x) {};
+    ~A() {};
+};
+
 int main(int argc, char **argv)
 {
 
     snek::world<snek::test_config::configuration_policy> world;
-    auto e = world.spawn();
-    world.bind<snek::test_config::component_a>(e);
-
-    snek::storage::sparse_set<int> sparse_set;
-
+    snek::storage::sparse_set<int> ss;
+    ss.insert(1, 3);
+    std::cout << std::boolalpha << ss.contains(1) << std::endl;
 
     return 0;
 }
