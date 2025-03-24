@@ -3,7 +3,7 @@
 #include <vector>
 #include <array>
 #include "../utils/type_list.hpp"
-#include "../core/storage.hpp"
+#include "../core/storage/page_storage.hpp"
 #include "../debug/debug.hpp"
 #include "world_policy.hpp"
 #include "traits.hpp"

@@ -5,7 +5,7 @@
 #include "snakeecs/ecs/world.hpp"
 #include "snakeecs/config/configuration_policy.hpp"
 #include <map>
-#include "snakeecs/core/storage.hpp"
+#include "snakeecs/core/storage/sparse_set.hpp"
 
 struct A
 {
