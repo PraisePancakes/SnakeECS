@@ -82,7 +82,12 @@ namespace snek
                 std::swap(_sparse[last], _sparse[elem]);
                 _dense.pop_back();
             };
-            void clear() override {};
+            void clear() override
+            {
+                this->_packed_elements.clear();
+                this->_dense.clear();
+                this->_sparse.clear();
+            };
 
             T *get(size_t id)
             {

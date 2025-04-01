@@ -56,7 +56,7 @@ void BMARK_PAGE_STORAGE_GET()
     auto t1 = high_resolution_clock::now();
     for (size_t i = 0; i < 9000; i++)
     {
-        vec[i];
+        auto x = vec[i];
     }
     auto t2 = high_resolution_clock::now();
 
@@ -67,7 +67,7 @@ void BMARK_PAGE_STORAGE_GET()
     auto t3 = high_resolution_clock::now();
     for (size_t i = 0; i < 9000; i++)
     {
-        vec1.get(i);
+        auto x = vec1.get(i);
     }
     auto t4 = high_resolution_clock::now();
 

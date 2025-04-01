@@ -1,9 +1,9 @@
 #pragma once
 #include <iostream>
 #include "../ecs/world_policy.hpp"
+#include "../debug/debug.hpp"
 
 // set config to false in release
-#define _SNEK_CONFIG true
 #ifdef _SNEK_CONFIG
 
 namespace snek
