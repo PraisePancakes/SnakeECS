@@ -5,6 +5,7 @@
 #include "snakeecs/ecs/world.hpp"
 #include "snakeecs/config/configuration_policy.hpp"
 #include <map>
+#include "snakeecs/benchmark/bmark_sparse_set.hpp"
 #include "snakeecs/core/storage/sparse_set.hpp"
 
 struct A
@@ -16,11 +17,8 @@ struct A
 
 int main(int argc, char **argv)
 {
-
-    snek::world<snek::test_config::configuration_policy> world;
-    snek::storage::sparse_set<int> ss;
-    ss.insert(1, 3);
-    std::cout << std::boolalpha << ss.contains(1) << std::endl;
+    BMARK_SPARSE_SET();
+    BMARK_SPARSE_SET_ITERATOR();
 
     return 0;
 }

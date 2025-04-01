@@ -4,6 +4,7 @@
 #include <array>
 #include "../utils/type_list.hpp"
 #include "../core/storage/page_storage.hpp"
+#include "../core/storage/sparse_set.hpp"
 #include "../debug/debug.hpp"
 #include "world_policy.hpp"
 #include "traits.hpp"
@@ -24,6 +25,7 @@ namespace snek
         using allocator_type = Policy::allocator_type;
 
         snek::storage::page_storage<entity_type, allocator_type> entity_store;
+        std::vector<snek::storage::polymorphic_sparse_set *> _component_pools;
 
         allocator_type alloc;
 

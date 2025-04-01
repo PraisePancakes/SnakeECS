@@ -41,12 +41,29 @@ namespace snek
                 _sparse.resize(initial, tombstone_v);
             };
 
+            std::vector<T>::const_iterator begin()
+            {
+                return _packed_elements.begin();
+            };
+            std::vector<T>::const_iterator end()
+            {
+                return _packed_elements.end();
+            };
+
             void insert(size_t id, T elem)
             {
+                if (id > _sparse.size())
+                {
+                    _sparse.resize(_sparse.size() * 2);
+                }
                 _sparse[id] = _dense.size();
                 _dense.push_back(id);
                 _packed_elements.push_back(elem);
             }
+            std::vector<T> &get_packed() const noexcept
+            {
+                return this->_packed_elements;
+            };
 
             [[nodiscard]] size_t size() const noexcept override
             {
@@ -69,6 +86,18 @@ namespace snek
 
             T *get(size_t id)
             {
+                if (!this->contains(id))
+                    return nullptr;
+                return &_packed_elements[_sparse[id]];
+            }
+
+            T &get_ref(size_t id)
+            {
+                if (!this->contains(id))
+                {
+                    throw std::runtime_error("error retrieving id : " + id);
+                }
+                return _packed_elements[_sparse[id]];
             }
 
             ~sparse_set() {};
