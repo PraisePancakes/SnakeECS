@@ -1,7 +1,7 @@
 
-#include "testing_config.hpp"
+#include "../debug/debug.hpp"
 
-#ifdef _SNEK_COMPONENT_TYPE_STATIC_TEST_
+#ifdef _SNEK_STATIC_TEST_
 #include <iostream>
 #include "../ecs/world.hpp"
 #include "../config/configuration_policy.hpp"
@@ -9,7 +9,7 @@
 using namespace snek;
 using namespace test_config;
 
-struct test
+void TEST_STATIC_WORLD_POLICY()
 {
     // A : 0 , B : 1
     // assume component_a and component_b are registered in world policy

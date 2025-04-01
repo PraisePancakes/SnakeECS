@@ -30,7 +30,10 @@ namespace snek
         allocator_type alloc;
 
     public:
-        world() : entity_store() {};
+        world() : entity_store()
+        {
+            _component_pools.resize(component_list::size);
+        };
         world(allocator_type &a) : alloc(a) {};
         [[nodiscard]] entity_type spawn()
         {

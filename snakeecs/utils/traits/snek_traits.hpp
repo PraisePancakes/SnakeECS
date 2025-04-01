@@ -71,5 +71,26 @@ namespace snek
         {
         };
 
+        template <typename T, typename = void>
+        struct tlist_has_size_constant : std::false_type
+        {
+        };
+
+        template <typename T>
+        struct tlist_has_size_constant<T, std::void_t<decltype(std::declval<T>().size)>> : std::true_type
+        {
+        };
+
+        template <typename, typename = void>
+        struct is_type_list : std::false_type
+        {
+        };
+
+        template <template <typename...> class T, typename... Ts>
+        struct is_type_list<T<Ts...>,
+                            std::enable_if_t<tlist_has_size_constant<T<Ts...>>::value>> : std::true_type
+        {
+        };
+
     }
 };

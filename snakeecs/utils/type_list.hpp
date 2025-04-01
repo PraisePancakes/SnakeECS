@@ -7,7 +7,10 @@ namespace snek
     {
 
         template <typename... Cs>
-        struct type_list;
+        struct type_list
+        {
+            static constexpr size_t size = sizeof...(Cs);
+        };
 
         namespace internal
         {

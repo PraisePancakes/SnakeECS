@@ -13,15 +13,14 @@ using std::chrono::milliseconds;
 
 void BMARK_SPARSE_SET()
 {
-    snek::storage::sparse_set<std::vector<int>> ss;
-    std::unordered_map<int, std::vector<int>> map;
+    snek::storage::sparse_set<int> ss;
+    std::unordered_map<int, int> map;
 
     auto t1 = high_resolution_clock::now();
 
     for (size_t i = 0; i < 9000; i++)
     {
-        std::vector<int> vec(6, 100);
-        ss.insert(i, vec);
+        ss.insert(i, i + 1);
     }
     auto t2 = high_resolution_clock::now();
 
@@ -32,8 +31,7 @@ void BMARK_SPARSE_SET()
 
     for (size_t i = 0; i < 9000; i++)
     {
-        std::vector<int> vec(6, 100);
-        map.insert(std::pair<int, std::vector<int>>(i, vec));
+        map.insert(std::pair<int, int>(i, i + 1));
     }
     auto t4 = high_resolution_clock::now();
 
@@ -63,7 +61,6 @@ void BMARK_SPARSE_SET_ITERATOR()
     {
         for (auto &e : el)
         {
-           
         }
     }
     auto t2 = high_resolution_clock::now();
@@ -76,7 +73,6 @@ void BMARK_SPARSE_SET_ITERATOR()
     {
         for (auto &e : el.second)
         {
-            
         }
     }
     auto t4 = high_resolution_clock::now();

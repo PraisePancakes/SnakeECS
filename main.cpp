@@ -1,5 +1,7 @@
 #include <iostream>
 #include "snakeecs/benchmark/bmark_page_storage.cpp"
+#include "snakeecs/tests/test_world_policy.hpp"
+#include "snakeecs/tests/test_component.hpp"
 #include "snakeecs/utils/traits/snek_traits.hpp"
 #include "snakeecs/ecs/world_policy.hpp"
 #include "snakeecs/ecs/world.hpp"
@@ -25,5 +27,11 @@ int main(int argc, char **argv)
     BMARK_PAGE_STORAGE_INSERT();
     BMARK_PAGE_STORAGE_GET();
 #endif
+#ifdef _SNEK_STATIC_TEST_
+    TEST_STATIC_WORLD_POLICY();
+    TEST_STATIC_CONFIG_POLICY();
+    TEST_STATIC_UTIL_TYPE_TRAITS();
+#endif
+
     return 0;
 }
