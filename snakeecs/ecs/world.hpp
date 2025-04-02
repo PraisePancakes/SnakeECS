@@ -25,25 +25,35 @@ namespace snek
         using allocator_type = Policy::allocator_type;
 
         snek::storage::page_storage<entity_type, allocator_type> entity_store;
-        std::vector<snek::storage::polymorphic_sparse_set *> _component_pools;
+        snek::storage::page_storage<entity_type, allocator_type> entities;
+        std::vector<snek::storage::polymorphic_sparse_set *, allocator_type> _component_pools;
 
         allocator_type alloc;
 
     public:
-        world() : entity_store()
+        world() : alloc(), entities(), entity_store()
         {
-            _component_pools.resize(component_list::size);
+            _component_pools.resize(component_list::size, nullptr);
         };
-        world(allocator_type &a) : alloc(a) {};
+        world(allocator_type &a) : alloc(a), entities(), entity_store() {};
         [[nodiscard]] entity_type spawn()
         {
             entity_type id = world_policy::generate_entity_id();
-            entity_store.insert(id, id);
+            if (id >= snek::traits::tombstone_t<entity_type>::null_v - 1) [[unlikely]]
+            {
+                if (entity_store.size() > 0)
+                {
+                    // retrieve the back entity
+
+                    // pop strictly the back element not the page
+                };
+            }
+            entities.insert(id);
             return id;
         };
         [[nodiscard]] bool contains(entity_type id)
         {
-            return entity_store.get(id) != snek::traits::tombstone_t<entity_type>::null_v;
+            return entities.get(id) != snek::traits::tombstone_t<entity_type>::null_v;
         }
 
         template <typename C, typename... Args>

@@ -41,22 +41,23 @@ void BMARK_PAGE_STORAGE_INSERT()
 void BMARK_PAGE_STORAGE_GET()
 {
     std::vector<int> vec;
-    snek::storage::page_storage<int, std::allocator<int>> vec1;
+    snek::storage::page_storage<int, std::allocator<int>> ps;
 
-    for (size_t i = 0; i < 9000; i++)
+    for (size_t i = 0; i < 10; i++)
     {
         vec.push_back(i);
     }
 
-    for (size_t i = 0; i < 9000; i++)
+    for (size_t i = 0; i < 10; i++)
     {
-        vec1.insert(i, i);
+        ps.insert(i, i);
     }
 
     auto t1 = high_resolution_clock::now();
-    for (size_t i = 0; i < 9000; i++)
+    for (size_t i = 0; i < 10; i++)
     {
         auto x = vec[i];
+        std::cout << x << std::endl;
     }
     auto t2 = high_resolution_clock::now();
 
@@ -65,13 +66,67 @@ void BMARK_PAGE_STORAGE_GET()
     std::cout << "benchmark vector get : " << ms_double.count() << "ms\n";
 
     auto t3 = high_resolution_clock::now();
-    for (size_t i = 0; i < 9000; i++)
+    for (size_t i = 0; i < 10; i++)
     {
-        auto x = vec1.get(i);
+        auto x = ps.get(i);
     }
     auto t4 = high_resolution_clock::now();
 
     duration<double, std::milli> ms_double2 = t4 - t3;
 
     std::cout << "benchmark page storage get: " << ms_double2.count() << "ms\n";
+}
+
+void BMARK_PAGE_STORAGE_POP()
+{
+    std::vector<int> vec;
+    snek::storage::page_storage<int, std::allocator<int>> ps;
+
+    for (size_t i = 0; i < 10; i++)
+    {
+        vec.push_back(i);
+    }
+
+    for (size_t i = 0; i < 10; i++)
+    {
+        ps.insert(i, i);
+    }
+
+    auto t1 = high_resolution_clock::now();
+    for (size_t i = 0; i < 10; i++)
+    {
+        vec.pop_back();
+    }
+    auto t2 = high_resolution_clock::now();
+
+    duration<double, std::milli> ms_double = t2 - t1;
+
+    std::cout << "benchmark vector pop : " << ms_double.count() << "ms\n";
+
+    auto t3 = high_resolution_clock::now();
+    for (size_t i = 0; i < 10; i++)
+    {
+        ps.pop();
+    }
+    auto t4 = high_resolution_clock::now();
+
+    duration<double, std::milli> ms_double2 = t4 - t3;
+
+    std::cout << "benchmark page storage pop: " << ms_double2.count() << "ms\n";
+}
+
+void BMARK_PAGE_STORAGE_FLAT_ITERATOR()
+{
+
+    snek::storage::page_storage<int, std::allocator<int>> ps;
+
+    for (size_t i = 0; i < 10; i++)
+    {
+        ps.insert(i);
+    }
+
+    for (auto it = ps.rbegin(); it != ps.rend(); ++it)
+    {
+        std::cout << *it << std::endl;
+    }
 }

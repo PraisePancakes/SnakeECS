@@ -20,18 +20,24 @@ struct A
 
 int main(int argc, char **argv)
 {
-#ifdef _SNEK_BENCHMARK_
+#if _SNEK_DEBUG_
+#if _SNEK_BENCHMARK_
     BMARK_SPARSE_SET();
     BMARK_SPARSE_SET_ITERATOR();
     std::cout << std::endl;
     BMARK_PAGE_STORAGE_INSERT();
     BMARK_PAGE_STORAGE_GET();
+    BMARK_PAGE_STORAGE_FLAT_ITERATOR();
+    std::cout << std::endl;
+
 #endif
-#ifdef _SNEK_STATIC_TEST_
+
+#if _SNEK_STATIC_TEST_
     TEST_STATIC_WORLD_POLICY();
     TEST_STATIC_CONFIG_POLICY();
     TEST_STATIC_UTIL_TYPE_TRAITS();
 #endif
+#endif //_SNEK_DEBUG_
 
     return 0;
 }
