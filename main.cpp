@@ -36,7 +36,9 @@ int main(int argc, char **argv)
 
 #endif
 #if _SNEK_WORLD_TEST_
-    TEST_WORLD();
+    TEST_WORLD_COMPONENT();
+    TEST_WORLD_CONTAINS_COMPONENT();
+    TEST_WORLD_CONTAINS_ENTITY();
 #endif
 
 #if _SNEK_STATIC_TEST_
