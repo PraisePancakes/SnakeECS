@@ -8,6 +8,7 @@
 #include "../debug/debug.hpp"
 #include "world_policy.hpp"
 #include "traits.hpp"
+#include <queue>
 
 namespace snek
 {
@@ -24,9 +25,9 @@ namespace snek
         using component_list = Policy::component_list;
         using allocator_type = Policy::allocator_type;
 
-        snek::storage::page_storage<entity_type, allocator_type> entity_store;
+        std::queue<entity_type> entity_store;
         snek::storage::page_storage<entity_type, allocator_type> entities;
-        std::vector<snek::storage::polymorphic_sparse_set *, allocator_type> _component_pools;
+        std::vector<snek::storage::polymorphic_sparse_set *> _component_pools;
 
         allocator_type alloc;
 
@@ -39,15 +40,17 @@ namespace snek
         [[nodiscard]] entity_type spawn()
         {
             entity_type id = world_policy::generate_entity_id();
-            if (id >= snek::traits::tombstone_t<entity_type>::null_v - 1) [[unlikely]]
+            if (id >= snek::traits::tombstone_t<entity_type>::null_v) [[unlikely]]
             {
-                if (entity_store.size() > 0)
+                // first check if the store is not empty
+                if (!entity_store.empty())
                 {
-                    // retrieve the back entity
-                    // pop strictly the back element not the page
-                    id = entity_store.get(entity_store.size() - 1);
+                    // retrieve the front entity
+                    id = entity_store.front();
+                    // pop strictly the front element
                     entity_store.pop();
                 };
+                // if its empty then no choice but to continue the ring of id's so back to 0 we go
             }
             entities.insert(id);
             return id;
@@ -57,10 +60,48 @@ namespace snek
             return entities.get(id) != snek::traits::tombstone_t<entity_type>::null_v;
         }
 
+        template <typename C>
+        [[nodiscard]] bool has(entity_type e) const
+        {
+            SNEK_ASSERT(world_policy::template is_valid_component<C>(), "C must be a registered component. ");
+            snek::storage::sparse_set<C> *ss = static_cast<snek::storage::sparse_set<C> *>(_component_pools[world_policy::template get_component_type_id<C>()]);
+            if (ss)
+            {
+                return ss->contains(e);
+            }
+            return false;
+        }
+
+        template <typename T, typename U, typename... Args>
+        [[nodiscard]] bool has_any(entity_type e) const noexcept
+        {
+            return has<T>(e) || has<U>(e) || (has<Args>(e) || ...);
+        }
+
+        template <typename T, typename U, typename... Args>
+        [[nodiscard]] bool has_all(entity_type e) const noexcept
+        {
+            return has<T>(e) && (has<U, Args>(e) && ...);
+        };
+
         template <typename C, typename... Args>
         C &bind(entity_type e, Args &&...args)
         {
-            static_assert(world_policy::template is_valid_component<C>(), "C must be a registered component. ");
+            SNEK_ASSERT(world_policy::template is_valid_component<C>(), "C must be a registered component. ");
+            // TO DO ADD GUARD TO CHECK IF ENTITY HAS COMPONENT
+
+            snek::storage::sparse_set<C> *ss = new snek::storage::sparse_set<C>();
+            C *component = new C(std::forward<Args>(args)...);
+            ss->insert(e, *component);
+            _component_pools[world_policy::template get_component_type_id<C>()] = ss;
+            return *component;
+        }
+
+        template <typename C>
+        C &get(entity_type e)
+        {
+            auto ss = static_cast<snek::storage::sparse_set<C> *>(_component_pools[world_policy::template get_component_type_id<C>()]);
+            return ss->get_ref(e);
         }
 
         [[nodiscard]] allocator_type &get_allocator() const noexcept

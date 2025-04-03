@@ -11,11 +11,12 @@ namespace snek
 
     namespace test_config
     {
-        class component_a
+        struct component_a
         {
+            int x = 4;
         };
 
-        class component_b
+        struct component_b
         {
         };
 

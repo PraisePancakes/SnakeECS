@@ -1,4 +1,4 @@
-
+#pragma once
 #include "../debug/debug.hpp"
 
 #ifdef _SNEK_STATIC_TEST_
