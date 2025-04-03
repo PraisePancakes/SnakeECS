@@ -10,6 +10,7 @@ namespace snek
 {
     namespace storage
     {
+
 #define PAGE_SIZE 4
         template <typename T, typename Alloc>
         class page_storage

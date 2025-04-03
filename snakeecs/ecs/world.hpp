@@ -44,8 +44,9 @@ namespace snek
                 if (entity_store.size() > 0)
                 {
                     // retrieve the back entity
-
                     // pop strictly the back element not the page
+                    id = entity_store.get(entity_store.size() - 1);
+                    entity_store.pop();
                 };
             }
             entities.insert(id);
