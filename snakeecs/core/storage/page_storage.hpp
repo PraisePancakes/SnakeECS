@@ -95,7 +95,7 @@ namespace snek
                         if (outer_index > 0)
                         {
                             outer_index--;
-                            inner_index = PAGE_SIZE;
+                            inner_index = PAGE_SIZE - 1;
                         }
                     }
                     return *this;
