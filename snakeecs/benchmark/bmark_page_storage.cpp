@@ -119,7 +119,24 @@ void BMARK_PAGE_STORAGE_FLAT_ITERATOR()
 {
 
     snek::storage::page_storage<int, std::allocator<int>> ps;
+    std::cout << "FLAT ITERATOR (REGULAR)" << std::endl;
+    for (size_t i = 0; i < 10; i++)
+    {
+        ps.insert(i);
+    }
 
+    for (auto it = ps.begin(); it != ps.end(); ++it)
+    {
+        std::cout << *it << std::endl;
+    }
+    std::cout << std::endl;
+}
+
+void BMARK_PAGE_STORAGE_FLAT_REVERSE_ITERATOR()
+{
+
+    snek::storage::page_storage<int, std::allocator<int>> ps;
+    std::cout << "FLAT ITERATOR (REVERSE)" << std::endl;
     for (size_t i = 0; i < 10; i++)
     {
         ps.insert(i);
@@ -129,4 +146,41 @@ void BMARK_PAGE_STORAGE_FLAT_ITERATOR()
     {
         std::cout << *it << std::endl;
     }
+    std::cout << std::endl;
+}
+
+void BMARK_PAGE_STORAGE_FLAT_CONST_ITERATOR()
+{
+
+    snek::storage::page_storage<int, std::allocator<int>> ps;
+    std::cout << "FLAT ITERATOR (CONST)" << std::endl;
+    for (size_t i = 0; i < 10; i++)
+    {
+        ps.insert(i);
+    }
+
+    for (auto it = ps.cbegin(); it != ps.cend(); ++it)
+    {
+        //*it = 4;      //invalid
+        std::cout << *it << std::endl;
+    }
+    std::cout << std::endl;
+}
+
+void BMARK_PAGE_STORAGE_FLAT_CONST_REVERSE_ITERATOR()
+{
+
+    snek::storage::page_storage<int, std::allocator<int>> ps;
+    std::cout << "FLAT ITERATOR (CONST REVERSE)" << std::endl;
+    for (size_t i = 0; i < 10; i++)
+    {
+        ps.insert(i);
+    }
+
+    for (auto it = ps.crbegin(); it != ps.crend(); ++it)
+    {
+        //*it = 4; // invalid
+        std::cout << *it << std::endl;
+    }
+    std::cout << std::endl;
 }
