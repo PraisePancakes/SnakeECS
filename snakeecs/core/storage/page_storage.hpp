@@ -289,6 +289,7 @@ namespace snek
                 if (page >= pages.size())
                     return;
                 pages[page][index] = tombstone_v;
+                std::swap(pages[page][index], pages[_size / PAGE_SIZE][_size % PAGE_SIZE]);
                 _size--;
             }
 

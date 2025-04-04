@@ -77,6 +77,8 @@ namespace snek
 
             void remove(size_t elem) override
             {
+                if (!contains(elem))
+                    return;
                 const auto last = _dense.back();
                 std::swap(_dense.back(), _dense[_sparse[elem]]);
                 std::swap(_sparse[last], _sparse[elem]);

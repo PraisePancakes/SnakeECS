@@ -93,6 +93,29 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
         std::cout << std::boolalpha << w.has<component_b>(i) << std::endl;
     }
 
+    std::cout << "[WORLD SIZE BEFORE KILL = 70]" << std::endl;
+    std::cout << w.size() << std::endl;
+
+    std::cout << "[WORLD KILL (false)]" << std::endl;
+    for (size_t i = 0; i < 10; i++)
+    {
+        auto e = w.spawn();
+        w.kill(e);
+        std::cout << std::boolalpha << w.contains(e) << std::endl;
+    }
+
+    std::cout << "[WORLD KILL check components (false)]" << std::endl;
+    for (size_t i = 0; i < 10; i++)
+    {
+        auto e = w.spawn();
+        w.bind<component_a>(e);
+        w.kill(e);
+        std::cout << std::boolalpha << w.has<component_a>(e) << std::endl;
+    }
+
+    std::cout << "[WORLD SIZE AFTER KILL = 70]" << std::endl;
+    std::cout << w.size() << std::endl;
+
     std::cout << std::endl;
 }
 

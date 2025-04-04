@@ -4,7 +4,7 @@
 #include "../debug/debug.hpp"
 
 // set config to false in release
-#ifdef _SNEK_CONFIG
+#if _SNEK_CONFIG
 
 namespace snek
 {

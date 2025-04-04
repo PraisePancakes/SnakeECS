@@ -40,7 +40,9 @@ namespace snek
         [[nodiscard]] entity_type spawn()
         {
             entity_type id = world_policy::generate_entity_id();
-            if (id >= snek::traits::tombstone_t<entity_type>::null_v) [[unlikely]]
+            bool overflowed = (id >= snek::traits::tombstone_t<entity_type>::null_v);
+
+            if (overflowed) [[unlikely]]
             {
                 // first check if the store is not empty
                 if (!entity_store.empty())
@@ -52,7 +54,9 @@ namespace snek
                 };
                 // if its empty then no choice but to continue the ring of id's so back to 0 we go
             }
+
             entities.insert(id, id);
+
             return id;
         };
         [[nodiscard]] bool contains(entity_type id)
@@ -123,10 +127,23 @@ namespace snek
             return ss->get_ref(e);
         }
 
+        [[nodiscard]] size_t size() const noexcept
+        {
+            return entities.size();
+        }
+
         void kill(entity_type e)
         {
             entity_store.push(e);
             entities.remove(e);
+
+            for (auto &s : _component_pools)
+            {
+                if (s)
+                {
+                    s->remove(e);
+                }
+            }
         }
 
         [[nodiscard]] allocator_type &get_allocator() const noexcept
