@@ -11,16 +11,30 @@ namespace snek
 
     namespace test_config
     {
+
         struct component_a
         {
             int x = 4;
+            component_a(int x) : x(x) {};
+            component_a() {};
         };
 
         struct component_b
         {
+            int x = 5;
+
+            component_b(int x) : x(x) {};
         };
 
-        using component_types = snek::component_list<component_a, component_b>;
+        struct component_c
+        {
+        };
+
+        struct component_d
+        {
+        };
+
+        using component_types = snek::component_list<component_a, component_b, component_c, component_d>;
         // config policy
         //@params
         // #ENTITY_TYPE

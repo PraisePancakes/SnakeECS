@@ -20,6 +20,54 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
         std::cout << e << std::endl;
         w.bind<component_a>(e);
     }
+
+    std::cout << "[WORLD INITIALIZE A : B]" << std::endl;
+    for (size_t i = 0; i < 10; i++)
+    {
+        auto e = w.spawn();
+        w.initialize<component_a, component_b>(e, 7, 8);
+        std::cout << "a : " << w.get<component_a>(e).x << " b : " << w.get<component_b>(e).x << std::endl;
+    }
+    std::cout << "[WORLD HAS ANY <A, B> {true}]" << std::endl;
+    for (size_t i = 0; i < 10; i++)
+    {
+        auto e = w.spawn();
+        w.initialize<component_a>(e, 7);
+        std::cout << std::boolalpha << " " << w.has_any<component_a, component_b>(e) << std::endl;
+    }
+
+    std::cout << "[WORLD HAS ANY <A, C> {true : has a}]" << std::endl;
+    for (size_t i = 0; i < 10; i++)
+    {
+        auto e = w.spawn();
+        w.initialize<component_a>(e, 7);
+        std::cout << std::boolalpha << " " << w.has_any<component_a, component_c>(e) << std::endl;
+    }
+
+    std::cout << "[WORLD HAS ANY <C, D> {false : has a, b}]" << std::endl;
+    for (size_t i = 0; i < 10; i++)
+    {
+        auto e = w.spawn();
+        w.initialize<component_a>(e, 7);
+        std::cout << std::boolalpha << " " << w.has_any<component_c, component_d>(e) << std::endl;
+    }
+
+    std::cout << "[WORLD HAS ALL <A, B> {true : has a, b}]" << std::endl;
+    for (size_t i = 0; i < 10; i++)
+    {
+        auto e = w.spawn();
+        w.initialize<component_a, component_b>(e, 7, 8);
+        std::cout << std::boolalpha << " " << w.has_all<component_a, component_b>(e) << std::endl;
+    }
+
+    std::cout << "[WORLD HAS ALL <A, C> {false : has a, b}]" << std::endl;
+    for (size_t i = 0; i < 10; i++)
+    {
+        auto e = w.spawn();
+        w.initialize<component_a, component_b>(e, 7, 8);
+        std::cout << std::boolalpha << " " << w.has_all<component_a, component_c>(e) << std::endl;
+    }
+
     std::cout << "[WORLD CONTAINS ENTITIES]" << std::endl;
     for (size_t i = 0; i < 10; i++)
     {

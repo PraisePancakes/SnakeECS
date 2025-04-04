@@ -81,7 +81,7 @@ namespace snek
         template <typename T, typename U, typename... Args>
         [[nodiscard]] bool has_all(entity_type e) const noexcept
         {
-            return has<T>(e) && (has<U, Args>(e) && ...);
+            return (has<T>(e) && has<U>(e) && (has<Args>(e) && ...));
         };
 
         template <typename C, typename... Args>
