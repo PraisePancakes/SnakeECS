@@ -21,7 +21,7 @@ struct A
 
 int main(int argc, char **argv)
 {
-#if _SNEK_DEBUG_
+#if _SNEK_PEDANTIC_
 #if _SNEK_BENCHMARK_
     BMARK_SPARSE_SET();
     BMARK_SPARSE_SET_ITERATOR();
@@ -35,10 +35,9 @@ int main(int argc, char **argv)
     std::cout << std::endl;
 
 #endif
+#if _SNEK_DEBUG_
 #if _SNEK_WORLD_TEST_
-    TEST_WORLD_COMPONENT();
-    TEST_WORLD_CONTAINS_COMPONENT();
-    TEST_WORLD_CONTAINS_ENTITY();
+    TEST_WORLD_MULTIPLE_ENTITIES();
 #endif
 
 #if _SNEK_STATIC_TEST_
@@ -47,6 +46,7 @@ int main(int argc, char **argv)
     TEST_STATIC_UTIL_TYPE_TRAITS();
 #endif
 #endif //_SNEK_DEBUG_
+#endif
 
     return 0;
 }

@@ -9,47 +9,42 @@
 using namespace snek;
 using namespace test_config;
 
-void TEST_WORLD_COMPONENT()
+void TEST_WORLD_MULTIPLE_ENTITIES()
 {
+    std::cout << "WORLD TEST MULTIPLE ENTITIES" << std::endl;
+    snek::world<test_config::configuration_policy> w;
+    std::cout << "[WORLD SPAWNED ENTITIES]" << std::endl;
+    for (size_t i = 0; i < 10; i++)
+    {
+        auto e = w.spawn();
+        std::cout << e << std::endl;
+        w.bind<component_a>(e);
+    }
+    std::cout << "[WORLD CONTAINS ENTITIES]" << std::endl;
+    for (size_t i = 0; i < 10; i++)
+    {
+        std::cout << i << std::boolalpha << " " << w.contains(i) << std::endl;
+    }
+    std::cout << "[WORLD GET COMPONENT A (x = 4)]" << std::endl;
+    for (size_t i = 0; i < 10; i++)
+    {
+        auto c = w.get<component_a>(i);
+        std::cout << c.x << std::endl;
+    }
+    std::cout << "[WORLD HAS COMPONENT A (true)]" << std::endl;
+    for (size_t i = 0; i < 10; i++)
+    {
 
-    std::cout << "WORLD TEST COMPONENT" << std::endl;
-    snek::world<test_config::configuration_policy> world;
-    auto e = world.spawn();
-    world.bind<snek::test_config::component_a>(e);
-    auto v = world.get<snek::test_config::component_a>(e);
-    std::cout << "COMPONENT VALUE" << std::endl;
-    std::cout << v.x << std::endl;
-    std::cout << std::endl;
-};
+        std::cout << std::boolalpha << w.has<component_a>(i) << std::endl;
+    }
 
-void TEST_WORLD_CONTAINS_ENTITY()
-{
-    std::cout << "WORLD TEST CONTAINS ENTITY" << std::endl;
-    snek::world<test_config::configuration_policy> world;
+    std::cout << "[WORLD HAS COMPONENT B (false)]" << std::endl;
+    for (size_t i = 0; i < 10; i++)
+    {
 
-    std::cout << "TRUE CASE : " << std::endl;
-    auto e = world.spawn();
-    std::cout << std::boolalpha << world.contains(e) << std::endl;
-    std::cout << std::endl;
+        std::cout << std::boolalpha << w.has<component_b>(i) << std::endl;
+    }
 
-    std::cout << "FALSE CASE : " << std::endl;
-    std::cout << std::boolalpha << world.contains(1) << std::endl;
-    std::cout << std::endl;
-}
-
-void TEST_WORLD_CONTAINS_COMPONENT()
-{
-    std::cout << "WORLD TEST CONTAINS COMPONENT" << std::endl;
-
-    std::cout << "TRUE CASE : " << std::endl;
-    snek::world<test_config::configuration_policy> world;
-    auto e = world.spawn();
-    world.bind<snek::test_config::component_a>(e);
-    std::cout << std::boolalpha << world.has<snek::test_config::component_a>(e) << std::endl;
-
-    std::cout << "FALSE CASE : " << std::endl;
-    world.bind<snek::test_config::component_b>(e);
-    std::cout << std::boolalpha << world.has<snek::test_config::component_a>(e) << std::endl;
     std::cout << std::endl;
 }
 
