@@ -122,7 +122,7 @@ void BMARK_PAGE_STORAGE_FLAT_ITERATOR()
     std::cout << "FLAT ITERATOR (REGULAR)" << std::endl;
     for (size_t i = 0; i < 10; i++)
     {
-        ps.insert(i);
+        ps.insert(i, i);
     }
 
     for (auto it = ps.begin(); it != ps.end(); ++it)
@@ -139,7 +139,7 @@ void BMARK_PAGE_STORAGE_FLAT_REVERSE_ITERATOR()
     std::cout << "FLAT ITERATOR (REVERSE)" << std::endl;
     for (size_t i = 0; i < 10; i++)
     {
-        ps.insert(i);
+        ps.insert(i, i);
     }
 
     for (auto it = ps.rbegin(); it != ps.rend(); ++it)
@@ -156,7 +156,7 @@ void BMARK_PAGE_STORAGE_FLAT_CONST_ITERATOR()
     std::cout << "FLAT ITERATOR (CONST)" << std::endl;
     for (size_t i = 0; i < 10; i++)
     {
-        ps.insert(i);
+        ps.insert(i, i);
     }
 
     for (auto it = ps.cbegin(); it != ps.cend(); ++it)
@@ -174,7 +174,7 @@ void BMARK_PAGE_STORAGE_FLAT_CONST_REVERSE_ITERATOR()
     std::cout << "FLAT ITERATOR (CONST REVERSE)" << std::endl;
     for (size_t i = 0; i < 10; i++)
     {
-        ps.insert(i);
+        ps.insert(i, i);
     }
 
     for (auto it = ps.crbegin(); it != ps.crend(); ++it)

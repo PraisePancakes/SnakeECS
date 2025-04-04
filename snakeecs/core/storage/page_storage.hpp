@@ -282,20 +282,14 @@ namespace snek
                 pages[page][index] = what;
             }
 
-            void insert(size_t id)
+            void remove(size_t id)
             {
-
                 size_t page = id / PAGE_SIZE;
                 size_t index = id % PAGE_SIZE;
                 if (page >= pages.size())
-                {
-                    resize((page + 1) * 2);
-#if _SNEK_DEBUG_
-                    LOG("basic storage T : " + snek::utils::type_descriptor<T>().stringify());
-#endif
-                }
-                ++_size;
-                pages[page][index] = id;
+                    return;
+                pages[page][index] = tombstone_v;
+                _size--;
             }
 
             [[nodiscard]] T get(size_t id) const noexcept

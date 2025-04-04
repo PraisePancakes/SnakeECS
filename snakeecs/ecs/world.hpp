@@ -52,7 +52,7 @@ namespace snek
                 };
                 // if its empty then no choice but to continue the ring of id's so back to 0 we go
             }
-            entities.insert(id);
+            entities.insert(id, id);
             return id;
         };
         [[nodiscard]] bool contains(entity_type id)
@@ -87,7 +87,7 @@ namespace snek
         template <typename C, typename... Args>
         C &bind(entity_type e, Args &&...args)
         {
-         
+
             SNEK_ASSERT(world_policy::template is_valid_component<C>(), "C must be a registered component. ");
             C *component = new C(std::forward<Args>(args)...);
             // TO DO ADD GUARD TO CHECK IF ENTITY HAS COMPONENT
@@ -109,12 +109,24 @@ namespace snek
             return *component;
         }
 
+        template <typename... T, typename... Args>
+        void initialize(entity_type e, Args &&...args)
+        {
+            (bind<T>(e, std::forward<Args>(args)), ...);
+        }
+
         template <typename C>
         C &get(entity_type e)
         {
             SNEK_ASSERT(world_policy::template is_valid_component<C>(), "C must be a registered component. ");
             auto ss = static_cast<snek::storage::sparse_set<C> *>(_component_pools[world_policy::template get_component_type_id<C>()]);
             return ss->get_ref(e);
+        }
+
+        void kill(entity_type e)
+        {
+            entity_store.push(e);
+            entities.remove(e);
         }
 
         [[nodiscard]] allocator_type &get_allocator() const noexcept
