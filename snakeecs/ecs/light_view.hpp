@@ -46,14 +46,36 @@ namespace snek
             using component_list = world_policy::component_list;
             using allocator_type = world_policy::allocator_type;
             std::vector<snek::storage::polymorphic_sparse_set *> _component_pools;
-            static constexpr std::uint64_t _component_mask = (world_policy::template get_component_type_id<Ts>() | ...);
+
+            // first_component is the basis for the pool lookups,
+            // each entity of type "first_component" will refer to the entities of other types via get_component<T>(e)
+            // where e is an entity and T is the component type to retrieve.
+            /*
+
+                +------------+----------+
+                | Components | Entities |
+                +------------+----------+
+       -> first | A          |  0, 1, 2 |
+                | B          |  0, 1, 2 |
+                | C          |     0, 2 |
+                +------------+----------+
+
+            iterating through first we can use the set of entities to get from the dense index of the other sets
+            */
+
             using first_component = typename std::tuple_element<0, std::tuple<Ts...>>::type;
+            constexpr static auto driving_index = world_policy::template get_component_type_id<first_component>();
 
             template <typename T>
             T &get_component(entity_type e)
             {
                 auto *ss = static_cast<snek::storage::sparse_set<T> *>(_component_pools[world_policy::template get_component_type_id<T>()]);
-                return *ss->get(e);
+                if (!ss || !ss->contains(e))
+                {
+                    std::cerr << "SNEK ABORT FOR COMPONENT " << typeid(T).name() << " : INVALID ENTITY " << std::to_string(e) << std::endl;
+                    std::abort();
+                }
+                return ss->get_ref(e);
             }
 
         public:
@@ -61,12 +83,13 @@ namespace snek
 
             void for_each(std::function<void(Ts &...)> f)
             {
-                constexpr auto driving_index = world_policy::template get_component_type_id<first_component>();
                 auto *driving_pool = static_cast<snek::storage::sparse_set<first_component> *>(_component_pools[driving_index]);
-
-                for (entity_type e : driving_pool->get_dense())
+                if (driving_pool)
                 {
-                    f(get_component<Ts>(e)...);
+                    for (entity_type e : driving_pool->get_dense())
+                    {
+                        f(get_component<Ts>(e)...);
+                    }
                 }
             };
 
