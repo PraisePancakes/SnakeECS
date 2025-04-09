@@ -167,6 +167,14 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
         LOG("ENTITY " + std::to_string(i) + " " + bool_as_text(b));
     }
 
+    LOG("\n.\n.\n.\n.\n.\n.");
+    LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", " WORLD COMPONENT VIEW A & B");
+    LOG(".\n.\n.");
+
+    auto v = w.view<component_a, component_b>();
+    v.for_each([](component_a &a, component_b &b)
+               { std::cout << a.x << " " << b.x << std::endl; });
+
     std::cout << std::endl;
 }
 

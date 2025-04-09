@@ -70,12 +70,25 @@ namespace snek
             T &get_component(entity_type e)
             {
                 auto *ss = static_cast<snek::storage::sparse_set<T> *>(_component_pools[world_policy::template get_component_type_id<T>()]);
-                if (!ss || !ss->contains(e))
-                {
-                    std::cerr << "SNEK ABORT FOR COMPONENT " << typeid(T).name() << " : INVALID ENTITY " << std::to_string(e) << std::endl;
-                    std::abort();
-                }
                 return ss->get_ref(e);
+            }
+
+            template <typename T>
+            bool valid(entity_type id)
+            {
+                auto *ss = static_cast<snek::storage::sparse_set<T> *>(_component_pools[world_policy::template get_component_type_id<T>()]);
+                if (ss)
+                {
+                    return ss->contains(id);
+                }
+                std::cerr << "SNEK ABORT FOR COMPONENT " << typeid(T).name() << " : INVALID ENTITY " << std::to_string(id) << std::endl;
+                std::abort();
+            };
+
+            template <typename... Cs>
+            bool check(entity_type id)
+            {
+                return (valid<Cs>(id) && ...);
             }
 
         public:
@@ -88,7 +101,10 @@ namespace snek
                 {
                     for (entity_type e : driving_pool->get_dense())
                     {
-                        f(get_component<Ts>(e)...);
+                        if (check<Ts...>(e))
+                        {
+                            f(get_component<Ts>(e)...);
+                        }
                     }
                 }
             };

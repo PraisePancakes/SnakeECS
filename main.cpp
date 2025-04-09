@@ -48,7 +48,15 @@ int main(int argc, char **argv)
 #endif //_SNEK_DEBUG_
 
     /*  SANDBOX */
+    /***/
     snek::world<configuration_policy> w;
+
+    for (size_t i = 0; i < 10; i++)
+    {
+        auto e = w.spawn();
+        w.bind<component_b>(e, 6);
+    }
+
     for (size_t i = 0; i < 10; i++)
     {
         auto e = w.spawn();

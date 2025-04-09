@@ -148,6 +148,7 @@ namespace snek
                 }
             }
         }
+
         template <typename... Ts>
         [[nodiscard]] snek::ecs::light_view<this_type, Ts...> view()
         {
