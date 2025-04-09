@@ -21,7 +21,7 @@ struct A
 
 int main(int argc, char **argv)
 {
-#if _SNEK_PEDANTIC_
+
 #if _SNEK_BENCHMARK_
     BMARK_SPARSE_SET();
     BMARK_SPARSE_SET_ITERATOR();
@@ -33,8 +33,8 @@ int main(int argc, char **argv)
     BMARK_PAGE_STORAGE_FLAT_CONST_REVERSE_ITERATOR();
     BMARK_PAGE_STORAGE_FLAT_CONST_ITERATOR();
     std::cout << std::endl;
-
 #endif
+
 #if _SNEK_DEBUG_
 #if _SNEK_WORLD_TEST_
     TEST_WORLD_MULTIPLE_ENTITIES();
@@ -46,7 +46,7 @@ int main(int argc, char **argv)
     TEST_STATIC_UTIL_TYPE_TRAITS();
 #endif
 #endif //_SNEK_DEBUG_
-#endif
+
 
     return 0;
 }

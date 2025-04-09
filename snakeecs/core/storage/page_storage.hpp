@@ -258,8 +258,8 @@ namespace snek
 
             page_storage()
             {
-#if _SNEK_DEBUG_
-                LOG("basic storage T : " + snek::utils::type_descriptor<T>().stringify());
+#if _SNEK_PEDANTIC_
+                LOG_DESCRIPTION("SNEK_PEDANTIC", "BASIC STORAGE", "CONTAINER TYPE " + snek::utils::type_descriptor<T>().stringify());
 #endif
             };
 
@@ -271,8 +271,8 @@ namespace snek
                 if (page >= pages.size())
                 {
                     resize((page + 1) * 2);
-#if _SNEK_DEBUG_
-                    LOG("basic storage T : " + snek::utils::type_descriptor<T>().stringify());
+#if _SNEK_PEDANTIC_
+                    LOG_DESCRIPTION("SNEK_PEDANTIC", "BASIC STORAGE", "RESIZED STORAGE TO SIZE " + std::to_string(_size));
 #endif
                 }
                 if (!(_size >= tombstone_v))
