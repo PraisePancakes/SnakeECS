@@ -41,6 +41,8 @@ namespace snek
                 _sparse.resize(initial, tombstone_v);
             };
 
+            sparse_set(const sparse_set<T> &o) : _packed_elements(o._packed_elements), _dense(o._dense), _sparse(o._sparse) {};
+
             std::vector<T>::const_iterator begin()
             {
                 return _packed_elements.begin();

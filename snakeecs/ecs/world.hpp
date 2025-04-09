@@ -8,6 +8,7 @@
 #include "../debug/debug.hpp"
 #include "world_policy.hpp"
 #include "traits.hpp"
+
 #include <queue>
 
 namespace snek
@@ -19,11 +20,12 @@ namespace snek
 
     public:
         using world_policy = Policy;
-
-    private:
         using entity_type = Policy::entity_index;
         using component_list = Policy::component_list;
         using allocator_type = Policy::allocator_type;
+
+    private:
+        using this_type = world<Policy>;
 
         std::queue<entity_type> entity_store;
         snek::storage::page_storage<entity_type, allocator_type> entities;
@@ -145,6 +147,7 @@ namespace snek
                 }
             }
         }
+        [[nodiscard]] 
 
         [[nodiscard]] allocator_type &get_allocator() const noexcept
         {
