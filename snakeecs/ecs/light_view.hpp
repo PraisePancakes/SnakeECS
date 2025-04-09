@@ -47,6 +47,7 @@ namespace snek
             using allocator_type = world_policy::allocator_type;
             std::vector<snek::storage::polymorphic_sparse_set *> _component_pools;
             static constexpr std::uint64_t _component_mask = (world_policy::template get_component_type_id<Ts>() | ...);
+            using first_component = typename std::tuple_element<0, std::tuple<Ts...>>::type;
 
             template <typename T>
             T &get_component(entity_type e)
@@ -60,8 +61,8 @@ namespace snek
 
             void for_each(std::function<void(Ts &...)> f)
             {
-                constexpr auto driving_index = world_policy::template get_component_type_id<typename std::tuple_element<0, std::tuple<Ts...>>::type>();
-                auto *driving_pool = static_cast<snek::storage::sparse_set<typename std::tuple_element<0, std::tuple<Ts...>>::type> *>(_component_pools[driving_index]);
+                constexpr auto driving_index = world_policy::template get_component_type_id<first_component>();
+                auto *driving_pool = static_cast<snek::storage::sparse_set<first_component> *>(_component_pools[driving_index]);
 
                 for (entity_type e : driving_pool->get_dense())
                 {
