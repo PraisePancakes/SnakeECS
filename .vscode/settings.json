@@ -65,6 +65,7 @@
         "list": "cpp",
         "xhash": "cpp",
         "deque": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "functional": "cpp"
     }
 }

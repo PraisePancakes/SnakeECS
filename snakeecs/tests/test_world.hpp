@@ -41,7 +41,7 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
     }
     LOG("\n.\n.\n.\n.\n.\n.");
     LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", "WORLD HAS <A>:TRUE");
-     LOG(".\n.\n.");
+    LOG(".\n.\n.");
     for (size_t i = 0; i < 10; i++)
     {
         auto e = w.spawn();
@@ -51,7 +51,7 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
     }
     LOG("\n.\n.\n.\n.\n.\n.");
     LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", "WORLD HAS ANY <A, C>:TRUE HAS A & B");
-     LOG(".\n.\n.");
+    LOG(".\n.\n.");
     for (size_t i = 0; i < 10; i++)
     {
         auto e = w.spawn();
@@ -61,7 +61,7 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
     }
     LOG("\n.\n.\n.\n.\n.\n.");
     LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", "WORLD HAS ANY <C, D>:FALSE HAS A & B");
-     LOG(".\n.\n.");
+    LOG(".\n.\n.");
     for (size_t i = 0; i < 10; i++)
     {
         auto e = w.spawn();
@@ -71,7 +71,7 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
     }
     LOG("\n.\n.\n.\n.\n.\n.");
     LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", "WORLD HAS ALL <A, B>:TRUE HAS A & B");
-     LOG(".\n.\n.");
+    LOG(".\n.\n.");
     for (size_t i = 0; i < 10; i++)
     {
         auto e = w.spawn();
@@ -81,7 +81,7 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
     }
     LOG("\n.\n.\n.\n.\n.\n.");
     LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", "WORLD HAS ALL <A, C>:FALSE HAS A & B");
-     LOG(".\n.\n.");
+    LOG(".\n.\n.");
     for (size_t i = 0; i < 10; i++)
     {
         auto e = w.spawn();
@@ -91,7 +91,7 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
     }
     LOG("\n.\n.\n.\n.\n.\n.");
     LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", " (0-69) WORLD CONTAINS ENTITIES  TRUE");
-     LOG(".\n.\n.");
+    LOG(".\n.\n.");
     for (size_t i = 0; i < 70; i++)
     {
         bool b = w.contains(i);
@@ -99,7 +99,7 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
     }
     LOG("\n.\n.\n.\n.\n.\n.");
     LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", " (70-100) WORLD CONTAINS ENTITIES  FALSE");
-     LOG(".\n.\n.");
+    LOG(".\n.\n.");
     for (size_t i = 70; i < 100; i++)
     {
         bool b = w.contains(i);
@@ -107,7 +107,7 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
     }
     LOG("\n.\n.\n.\n.\n.\n.");
     LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", " (0-10) WORLD GET COMPONENT<A>:X=4");
-     LOG(".\n.\n.");
+    LOG(".\n.\n.");
     for (size_t i = 0; i < 10; i++)
     {
         int x = w.get<component_a>(i).x;
@@ -115,7 +115,7 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
     }
     LOG("\n.\n.\n.\n.\n.\n.");
     LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", " (0-10) WORLD HAS COMPONENT<A>:TRUE");
-     LOG(".\n.\n.");
+    LOG(".\n.\n.");
     for (size_t i = 0; i < 10; i++)
     {
         bool b = w.has<component_a>(i);
@@ -123,7 +123,7 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
     }
     LOG("\n.\n.\n.\n.\n.\n.");
     LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", " (0-10) WORLD HAS COMPONENT<B>:FALSE");
-     LOG(".\n.\n.");
+    LOG(".\n.\n.");
     for (size_t i = 0; i < 10; i++)
     {
         bool b = w.has<component_b>(i);
@@ -131,7 +131,7 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
     }
     LOG("\n.\n.\n.\n.\n.\n.");
     LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", " (0-10) WORLD  SPAWN KILL CONTAINS ENTITY FALSE");
-     LOG(".\n.\n.");
+    LOG(".\n.\n.");
     for (size_t i = 0; i < 10; i++)
     {
         auto e = w.spawn();
@@ -140,7 +140,7 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
     }
     LOG("\n.\n.\n.\n.\n.\n.");
     LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", " (0-10) WORLD SPAWN KILL HAS COMPONENT<A>:FALSE");
-     LOG(".\n.\n.");
+    LOG(".\n.\n.");
     for (size_t i = 0; i < 10; i++)
     {
         auto e = w.spawn();
@@ -150,9 +150,18 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
         LOG("ENTITY " + std::to_string(i) + " " + bool_as_text(b));
     }
     LOG("\n.\n.\n.\n.\n.\n.");
-    LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", " (0-70) WORLD CONTAINS ENTITY TRUE");
-     LOG(".\n.\n.");
+    LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", " (0-69) WORLD CONTAINS ENTITY TRUE");
+    LOG(".\n.\n.");
     for (size_t i = 0; i < 70; i++)
+    {
+        bool b = w.contains(i);
+        LOG("ENTITY " + std::to_string(i) + " " + bool_as_text(b));
+    }
+
+    LOG("\n.\n.\n.\n.\n.\n.");
+    LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", " (70-100) WORLD CONTAINS ENTITY FALSE");
+    LOG(".\n.\n.");
+    for (size_t i = 70; i < 100; i++)
     {
         bool b = w.contains(i);
         LOG("ENTITY " + std::to_string(i) + " " + bool_as_text(b));

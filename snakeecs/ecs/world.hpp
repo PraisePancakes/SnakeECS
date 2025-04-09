@@ -8,6 +8,7 @@
 #include "../debug/debug.hpp"
 #include "world_policy.hpp"
 #include "traits.hpp"
+#include "light_view.hpp"
 
 #include <queue>
 
@@ -147,9 +148,14 @@ namespace snek
                 }
             }
         }
-        [[nodiscard]] 
+        template <typename... Ts>
+        [[nodiscard]] snek::ecs::light_view<this_type, Ts...> view()
+        {
+            return {this->_component_pools};
+        };
 
-        [[nodiscard]] allocator_type &get_allocator() const noexcept
+        [[nodiscard]] allocator_type &
+        get_allocator() const noexcept
         {
             return alloc;
         }

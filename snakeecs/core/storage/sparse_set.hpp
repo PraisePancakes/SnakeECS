@@ -16,6 +16,7 @@ namespace snek
             virtual bool contains(size_t id) const noexcept = 0;
             virtual void clear() = 0;
             virtual void remove(size_t id) = 0;
+            virtual std::vector<size_t> &get_dense() = 0;
             virtual ~polymorphic_sparse_set() {};
         };
 
@@ -62,7 +63,7 @@ namespace snek
                 _dense.push_back(id);
                 _packed_elements.push_back(elem);
             }
-            std::vector<T> &get_packed() const noexcept
+            std::vector<T> &get_packed() noexcept
             {
                 return this->_packed_elements;
             };
@@ -76,6 +77,11 @@ namespace snek
             {
                 return (elem < _sparse.size() && _sparse[elem] < _dense.size() && _dense[_sparse[elem]] == elem);
             };
+
+            [[nodiscard]] std::vector<size_t> &get_dense() override
+            {
+                return this->_dense;
+            }
 
             void remove(size_t elem) override
             {
