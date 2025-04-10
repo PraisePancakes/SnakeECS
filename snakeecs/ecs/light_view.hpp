@@ -68,14 +68,16 @@ namespace snek
             template <typename T>
             T &get_from(entity_type e)
             {
-                auto *ss = static_cast<snek::storage::sparse_set<T> *>(_component_pools[world_policy::template get_component_type_id<T>()]);
+                auto c_id = world_policy::template get_component_type_id<T>();
+                auto *ss = static_cast<snek::storage::sparse_set<T> *>(_component_pools[c_id]);
                 return ss->get_ref(e);
             }
 
             template <typename T>
             bool valid(entity_type id)
             {
-                auto *ss = static_cast<snek::storage::sparse_set<T> *>(_component_pools[world_policy::template get_component_type_id<T>()]);
+                auto c_id = world_policy::template get_component_type_id<T>();
+                auto *ss = static_cast<snek::storage::sparse_set<T> *>(_component_pools[c_id]);
                 if (ss)
                 {
                     return ss->contains(id);

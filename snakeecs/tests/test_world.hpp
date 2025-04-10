@@ -35,7 +35,7 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
     for (size_t i = 0; i < 10; i++)
     {
         auto e = w.spawn();
-        w.initialize<component_a, component_b>(e, 7, 8);
+        w.initialize<component_a, component_b>(e, 5, 2);
         int a = w.get<component_a>(e).x;
         int b = w.get<component_b>(e).x;
         LOG("ENTITY " + std::to_string(e) + " A " + std::to_string(a) + " B " + std::to_string(b));
@@ -86,7 +86,7 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
     for (size_t i = 0; i < 10; i++)
     {
         auto e = w.spawn();
-        w.initialize<component_a, component_b>(e, 7, 8);
+        w.initialize<component_a, component_b>(e, 9, 1);
         bool b = w.has_any<component_a, component_c>(e);
         LOG("ENTITY " + std::to_string(e) + " " + bool_as_text(b));
     }

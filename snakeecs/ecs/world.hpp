@@ -80,6 +80,18 @@ namespace snek
             return false;
         }
 
+        template <typename T>
+        [[nodiscard]] bool has_all(entity_type e) const noexcept
+        {
+            return has<T>(e);
+        }
+
+        template <typename T>
+        [[nodiscard]] bool has_any(entity_type e) const noexcept
+        {
+            return has<T>(e);
+        }
+
         template <typename T, typename U, typename... Args>
         [[nodiscard]] bool has_any(entity_type e) const noexcept
         {
@@ -154,7 +166,8 @@ namespace snek
         template <typename... Ts>
         [[nodiscard]] snek::ecs::light_view<this_type, Ts...> view()
         {
-            return {this->_component_pools};
+
+            return {_component_pools};
         };
 
         [[nodiscard]] allocator_type &

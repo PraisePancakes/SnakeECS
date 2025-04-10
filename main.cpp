@@ -42,8 +42,5 @@ int main(int argc, char **argv)
 #endif
 #endif //_SNEK_DEBUG_
 
-    /*  SANDBOX */
-    /***/
-
-    return 0;
+      return 0;
 }
