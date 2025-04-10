@@ -1,4 +1,3 @@
-
 # SnakeECS : Rtti-free, Policy-based ECS framework.
 
 ## **_Motivation_**
@@ -20,9 +19,10 @@ using configuration_policy = snek::world_policy<std::uint64_t, component_types, 
 ```
 Since our components are explicitly injected via the policy, we don't have to worry about any runtime overhead with dynamic component types.
 
-## **_Tutorial_**
-```c++
-    #include "snek.hpp"
+## **_Usage/Examples_**
+
+```C++
+ #include "snek.hpp"
 
     struct A
     {
@@ -71,9 +71,33 @@ Since our components are explicitly injected via the policy, we don't have to wo
 
         for(int i = 0; i < 10; i++) {
             auto e = w.spawn();
-            //initialize components
+            //initialize multiple components
             w.initialize<A, B>(e, 5, 'B');
         }
         return 0;
     }
 ```
+
+
+## Build
+
+This project is built using CMake (Version 3.28) with ISO C++20 Standard.
+To run existing tests, from the root folder input these commands if not done already.
+```bash
+  mkdir build 
+  cd build
+  cmake -G "<Preferred-Generator>" ..
+  cmake --build .
+  ./SnakeECS
+```
+    
+## Acknowledgements
+I'd like to thank the following developers for their inspiration for different subsets of this project...
+ - [Skypjack's EnTT](https://github.com/skypjack/entt)
+ - [Chrischristakis' seecs](https://github.com/matiassingers/awesome-readme)
+ - [Vittorio Romeo's ECS Talk CppCon2015](https://www.youtube.com/watch?v=NTWSeQtHZ9M&t=2809s)
+
+
+## Authors
+
+- [@Praisepancakes](https://github.com/PraisePancakes)
