@@ -22,7 +22,7 @@ Since our components are explicitly injected via the policy, we don't have to wo
 ## **_Usage/Examples_**
 
 ```C++
- #include "snek.hpp"
+ #include "snakeecs.hpp"
 
     struct A
     {
