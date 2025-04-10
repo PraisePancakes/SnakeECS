@@ -1,5 +1,4 @@
 #pragma once
-#include "../core/storage/page_storage.hpp"
 #include "../core/storage/sparse_set.hpp"
 #include <functional>
 
@@ -67,7 +66,7 @@ namespace snek
             constexpr static auto driving_index = world_policy::template get_component_type_id<first_component>();
 
             template <typename T>
-            T &get_component(entity_type e)
+            T &get_from(entity_type e)
             {
                 auto *ss = static_cast<snek::storage::sparse_set<T> *>(_component_pools[world_policy::template get_component_type_id<T>()]);
                 return ss->get_ref(e);
@@ -103,7 +102,7 @@ namespace snek
                     {
                         if (check<Ts...>(e))
                         {
-                            f(get_component<Ts>(e)...);
+                            f(get_from<Ts>(e)...);
                         }
                     }
                 }

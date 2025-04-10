@@ -23,6 +23,7 @@ namespace snek
         static_assert(snek::entity::is_entity_type<EntityT>::value, "EntityT must meet following type requirements : uint64_t , uint32_t");
         static_assert(snek::traits::type_is_allocator<AllocatorT>::value, "AllocatorT must meet allocator requirements");
         static_assert(snek::traits::is_type_list<ComponentList>::value, "ComponentList must meet the component type list requirements");
+        static_assert(component_list::size < component_list::list_size, "ComponentList size must be less than required list size criteria");
 
         template <typename C>
         [[nodiscard]] static constexpr size_t get_component_type_id()

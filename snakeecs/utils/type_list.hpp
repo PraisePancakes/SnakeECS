@@ -9,7 +9,8 @@ namespace snek
         template <typename... Cs>
         struct type_list
         {
-            static constexpr size_t size = sizeof...(Cs);
+            static constexpr std::uint64_t size = sizeof...(Cs);
+            static constexpr std::uint64_t list_size = 64;
         };
 
         namespace internal

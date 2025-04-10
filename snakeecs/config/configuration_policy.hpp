@@ -40,7 +40,7 @@ namespace snek
         // #ENTITY_TYPE
         // #COMPONENT_TYPE
         // #ALLOCATOR_TYPE
-        using configuration_policy = snek::world_policy<std::uint64_t, component_types, std::allocator<int>>;
+        using configuration_policy = snek::world_policy<std::uint64_t, component_types, std::allocator<std::uint64_t>>;
 
     }
 

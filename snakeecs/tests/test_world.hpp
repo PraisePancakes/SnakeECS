@@ -3,6 +3,7 @@
 
 #ifdef _SNEK_WORLD_TEST_
 #include <iostream>
+#include <sstream>
 #include "../ecs/world.hpp"
 #include "../config/configuration_policy.hpp"
 
@@ -173,7 +174,10 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
 
     auto v = w.view<component_a, component_b>();
     v.for_each([](component_a &a, component_b &b)
-               { std::cout << a.x << " " << b.x << std::endl; });
+               {
+                int ax =  a.x;
+                int bx = b.x;
+                LOG("A : " + std::to_string(ax) + " B : " + std::to_string(bx)); });
 
     std::cout << std::endl;
 }
