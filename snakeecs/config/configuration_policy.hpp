@@ -28,6 +28,10 @@ namespace snek
 
         struct component_c
         {
+            int a;
+            char b;
+            std::string c;
+            component_c(int a, char b, std::string c) : a(a), b(b), c(c) {};
         };
 
         struct component_d

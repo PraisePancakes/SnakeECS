@@ -26,12 +26,6 @@ namespace snek
             using value_type = std::uint32_t;
         };
 
-        template <>
-        struct entity_traits<int>
-        {
-            using value_type = int;
-        };
-
         template <typename T, typename = void>
         struct is_entity_type
         {

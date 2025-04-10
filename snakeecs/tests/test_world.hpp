@@ -30,6 +30,19 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
         w.bind<component_a>(e);
     }
     LOG("\n.\n.\n.\n.\n.\n.");
+    LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", "TEST COMPONENT WITH MULTIPLE ARGS");
+    LOG(".\n.\n.");
+    for (size_t i = 0; i < 10; i++)
+    {
+        auto e = w.spawn();
+        w.bind<component_c>(e, 5, 'c', "COOL");
+        int a = w.get<component_c>(e).a;
+        char b = w.get<component_c>(e).b;
+        std::string c = w.get<component_c>(e).c;
+        LOG("ENTITY " + std::to_string(e) + " C(a) " + std::to_string(a) + " C(b) " + b + " C(c) " + c);
+    }
+
+    LOG("\n.\n.\n.\n.\n.\n.");
     LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", "WORLD INITIALIZE A & B");
     LOG(".\n.\n.");
     for (size_t i = 0; i < 10; i++)
