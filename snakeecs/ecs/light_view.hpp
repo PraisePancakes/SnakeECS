@@ -9,7 +9,7 @@ namespace snek
 
         /**
    * @summary:
-   *    to better describe my intuition behind my intuition behind this view structure,
+   *    to better describe my intuition behind this view structure,
    *  lets understand the definition of what it means to view something.
    *  view
       /vyo͞o/
