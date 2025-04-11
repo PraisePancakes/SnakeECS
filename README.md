@@ -98,7 +98,7 @@ To run existing tests, from the root folder input these commands if not done alr
 ## Acknowledgements
 I'd like to thank the following developers for their inspiration for different subsets of this project...
  - [Skypjack's EnTT](https://github.com/skypjack/entt)
- - [Chrischristakis' seecs](https://github.com/matiassingers/awesome-readme)
+ - [Chrischristakis' seecs]([https://github.com/matiassingers/awesome-readme](https://github.com/chrischristakis/))
  - [Vittorio Romeo's ECS Talk CppCon2015](https://www.youtube.com/watch?v=NTWSeQtHZ9M&t=2809s)
 
 
