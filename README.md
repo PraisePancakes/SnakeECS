@@ -1,4 +1,8 @@
 # SnakeECS : Rtti-free, Policy-based ECS framework.
+## **_Introduction_**
+An Entity Component System is an architectural design pattern aimed at performing operations within a system in a cache-friendly manner.
+There is too much to get into with this design pattern, so check out more information on its usage and concept [here](https://skypjack.github.io/2019-02-14-ecs-baf-part-1/).
+
 
 ## **_Motivation_**
 ### **_Rtti-free_** 
