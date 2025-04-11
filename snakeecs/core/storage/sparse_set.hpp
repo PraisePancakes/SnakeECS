@@ -59,10 +59,6 @@ namespace snek::storage
             _sparse[id] = _dense.size();
             _dense.push_back(std::pair<size_t, T>(id, elem));
         }
-        std::vector<T> &get_packed() noexcept
-        {
-            return this->_packed_elements;
-        };
 
         [[nodiscard]] size_t size() const noexcept override
         {
@@ -110,6 +106,9 @@ namespace snek::storage
             return _dense[_sparse[id]].second;
         }
 
-        ~sparse_set() {};
+        ~sparse_set()
+        {
+            clear();
+        };
     };
 };
