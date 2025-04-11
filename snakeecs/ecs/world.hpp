@@ -165,7 +165,7 @@ namespace snek
         template <typename... Ts>
         [[nodiscard]] snek::ecs::light_view<this_type, Ts...> view()
         {
-
+            static_assert((world_policy::template is_valid_component<Ts>() && ...), "Template pack must include world_policy components");
             return {_component_pools};
         }
 

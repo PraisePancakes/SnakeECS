@@ -26,7 +26,6 @@ namespace snek::storage
         // where T is a single component type
         std::vector<std::pair<size_t, T>> _dense;
         std::vector<size_t> _sparse; // will map the entity id to id in dense domain which is a 1:1 mapping to _packed_elements.
-
         constexpr static auto tombstone_v = snek::traits::tombstone_t<size_t>::null_v;
 
     public:
