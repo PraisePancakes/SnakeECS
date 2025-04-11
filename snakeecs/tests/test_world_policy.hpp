@@ -5,7 +5,7 @@
 #include <iostream>
 #include <vector>
 #include "../ecs/world_policy.hpp"
-#include "../config/configuration_policy.hpp"
+#include "configuration_policy.hpp"
 #include "../utils/traits/snek_traits.hpp"
 
 using namespace snek;

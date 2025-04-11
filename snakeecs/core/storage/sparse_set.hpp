@@ -5,118 +5,111 @@
 #include "../../ecs/traits.hpp"
 #include <memory>
 
-namespace snek
+namespace snek::storage
 {
-    namespace storage
+
+    // allows for multiple sparse sets of different component types to be pooled together
+    struct polymorphic_sparse_set
     {
-        // allows for multiple sparse sets of different component types to be pooled together
-        struct polymorphic_sparse_set
-        {
-            virtual size_t size() const noexcept = 0;
-            virtual bool contains(size_t id) const noexcept = 0;
-            virtual void clear() = 0;
-            virtual void remove(size_t id) = 0;
-            virtual std::vector<size_t> &get_dense() = 0;
-            virtual ~polymorphic_sparse_set() {};
-        };
+        virtual size_t size() const noexcept = 0;
+        virtual bool contains(size_t id) const noexcept = 0;
+        virtual void clear() = 0;
+        virtual void remove(size_t id) = 0;
+        virtual ~polymorphic_sparse_set() {};
+    };
 
 #include "../../ecs/traits.hpp"
 
-        template <typename T>
-        class sparse_set : public polymorphic_sparse_set
+    template <typename T>
+    class sparse_set : public polymorphic_sparse_set
+    {
+        // where T is a single component type
+        std::vector<std::pair<size_t, T>> _dense;
+        std::vector<size_t> _sparse; // will map the entity id to id in dense domain which is a 1:1 mapping to _packed_elements.
+
+        constexpr static auto tombstone_v = snek::traits::tombstone_t<size_t>::null_v;
+
+    public:
+        sparse_set()
         {
-            // where T is a single component type
-            std::vector<T> _packed_elements; // elements (components) in domain
-            std::vector<size_t> _dense;      // 1 : 1 mapping of _packed_elements and index into _sparse
-            std::vector<size_t> _sparse;     // will map the entity id to id in dense domain which is a 1:1 mapping to _packed_elements.
-
-            constexpr static auto tombstone_v = snek::traits::tombstone_t<size_t>::null_v;
-
-        public:
-            sparse_set()
-            {
-                _sparse.resize(1000, tombstone_v);
-            };
-            sparse_set(size_t initial)
-            {
-                _sparse.resize(initial, tombstone_v);
-            };
-
-            sparse_set(const sparse_set<T> &o) : _packed_elements(o._packed_elements), _dense(o._dense), _sparse(o._sparse) {};
-
-            std::vector<T>::const_iterator begin()
-            {
-                return _packed_elements.begin();
-            };
-            std::vector<T>::const_iterator end()
-            {
-                return _packed_elements.end();
-            };
-
-            void insert(size_t id, T elem)
-            {
-                if (id > _sparse.size())
-                {
-                    _sparse.resize(_sparse.size() * 2);
-                }
-                _sparse[id] = _dense.size();
-                _dense.push_back(id);
-                _packed_elements.push_back(elem);
-            }
-            std::vector<T> &get_packed() noexcept
-            {
-                return this->_packed_elements;
-            };
-
-            [[nodiscard]] size_t size() const noexcept override
-            {
-                return _dense.size();
-            }
-            // check if _dense has elem (id)
-            [[nodiscard]] bool contains(size_t elem) const noexcept override
-            {
-                return (elem < _sparse.size() && _sparse[elem] < _dense.size() && _dense[_sparse[elem]] == elem);
-            };
-
-            [[nodiscard]] std::vector<size_t> &get_dense() override
-            {
-                return this->_dense;
-            }
-
-            void remove(size_t elem) override
-            {
-                if (!contains(elem))
-                    return;
-                const auto last = _dense.back();
-                std::swap(_dense.back(), _dense[_sparse[elem]]);
-                std::swap(_sparse[last], _sparse[elem]);
-                _dense.pop_back();
-            };
-            void clear() override
-            {
-                this->_packed_elements.clear();
-                this->_dense.clear();
-                this->_sparse.clear();
-            };
-
-            T *get(size_t id)
-            {
-                if (!this->contains(id))
-                    return nullptr;
-                return &_packed_elements[_sparse[id]];
-            }
-
-            T &get_ref(size_t id)
-            {
-                if (!this->contains(id))
-                {
-                    throw std::runtime_error("error retrieving id : " + id);
-                }
-                return _packed_elements[_sparse[id]];
-            }
-
-            ~sparse_set() {};
+            _sparse.resize(1000, tombstone_v);
         };
-    }
+        sparse_set(size_t initial)
+        {
+            _sparse.resize(initial, tombstone_v);
+        };
 
-}
+        sparse_set(const sparse_set<T> &o) : _dense(o._dense), _sparse(o._sparse) {};
+
+        std::vector<std::pair<size_t, T>>::const_iterator begin()
+        {
+            return _dense.begin();
+        };
+        std::vector<std::pair<size_t, T>>::const_iterator end()
+        {
+            return _dense.end();
+        };
+
+        void insert(size_t id, T elem)
+        {
+            if (id > _sparse.size())
+            {
+                _sparse.resize(_sparse.size() * 2, tombstone_v);
+            }
+            _sparse[id] = _dense.size();
+            _dense.push_back(std::pair<size_t, T>(id, elem));
+        }
+        std::vector<T> &get_packed() noexcept
+        {
+            return this->_packed_elements;
+        };
+
+        [[nodiscard]] size_t size() const noexcept override
+        {
+            return _dense.size();
+        }
+        // check if _dense has elem (id)
+        [[nodiscard]] bool contains(size_t elem) const noexcept override
+        {
+            return (elem < _sparse.size() && _sparse[elem] < _dense.size() && _dense[_sparse[elem]].first == elem);
+        };
+
+        [[nodiscard]] std::vector<std::pair<size_t, T>> &get_dense()
+        {
+            return this->_dense;
+        }
+
+        void remove(size_t elem) override
+        {
+            if (!contains(elem))
+                return;
+            const auto last = _dense.back().first;
+            std::swap(_dense.back(), _dense[_sparse[elem]]);
+            std::swap(_sparse[last], _sparse[elem]);
+            _dense.pop_back();
+        };
+        void clear() override
+        {
+            this->_dense.clear();
+            this->_sparse.clear();
+        };
+
+        T *get(size_t id)
+        {
+            if (!this->contains(id))
+                return nullptr;
+            return &_dense[_sparse[id]].second;
+        }
+
+        T &get_ref(size_t id)
+        {
+            if (!this->contains(id))
+            {
+                throw std::runtime_error("the set does not contain id : " + id);
+            }
+            return _dense[_sparse[id]].second;
+        }
+
+        ~sparse_set() {};
+    };
+};

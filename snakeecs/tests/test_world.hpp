@@ -5,7 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include "../ecs/world.hpp"
-#include "../config/configuration_policy.hpp"
+#include "configuration_policy.hpp"
 
 using namespace snek;
 using namespace test_config;
@@ -104,9 +104,9 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
         LOG("ENTITY " + std::to_string(e) + " " + bool_as_text(b));
     }
     LOG("\n.\n.\n.\n.\n.\n.");
-    LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", " (0-69) WORLD CONTAINS ENTITIES  TRUE");
+    LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", " (0-79) WORLD CONTAINS ENTITIES  TRUE");
     LOG(".\n.\n.");
-    for (size_t i = 0; i < 70; i++)
+    for (size_t i = 0; i < 79; i++)
     {
         bool b = w.contains(i);
         LOG("ENTITY " + std::to_string(i) + " " + bool_as_text(b));
@@ -114,7 +114,7 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
     LOG("\n.\n.\n.\n.\n.\n.");
     LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", " (70-100) WORLD CONTAINS ENTITIES  FALSE");
     LOG(".\n.\n.");
-    for (size_t i = 70; i < 100; i++)
+    for (size_t i = 80; i < 100; i++)
     {
         bool b = w.contains(i);
         LOG("ENTITY " + std::to_string(i) + " " + bool_as_text(b));
@@ -164,18 +164,19 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
         LOG("ENTITY " + std::to_string(i) + " " + bool_as_text(b));
     }
     LOG("\n.\n.\n.\n.\n.\n.");
-    LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", " (0-69) WORLD CONTAINS ENTITY TRUE");
+    LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", " (0-79) WORLD CONTAINS ENTITY TRUE");
     LOG(".\n.\n.");
-    for (size_t i = 0; i < 70; i++)
+
+    for (size_t i = 0; i < 80; i++)
     {
         bool b = w.contains(i);
         LOG("ENTITY " + std::to_string(i) + " " + bool_as_text(b));
     }
 
     LOG("\n.\n.\n.\n.\n.\n.");
-    LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", " (70-100) WORLD CONTAINS ENTITY FALSE");
+    LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", " (80-100) WORLD CONTAINS ENTITY FALSE");
     LOG(".\n.\n.");
-    for (size_t i = 70; i < 100; i++)
+    for (size_t i = 80; i < 100; i++)
     {
         bool b = w.contains(i);
         LOG("ENTITY " + std::to_string(i) + " " + bool_as_text(b));

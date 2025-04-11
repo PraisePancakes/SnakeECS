@@ -13,7 +13,7 @@ namespace snek
     template <typename EntityT, typename ComponentList, typename AllocatorT>
     struct world_policy;
 
-    template <typename EntityT, typename ComponentList, typename AllocatorT>
+    template <typename EntityT, typename ComponentList, typename AllocatorT = std::allocator<EntityT>>
     struct world_policy
     {
         using entity_index = EntityT;
@@ -30,19 +30,19 @@ namespace snek
         {
 
             return snek::utils::index_of<C, component_list>();
-        };
+        }
 
         template <typename C>
         [[nodiscard]] static constexpr bool is_valid_component()
         {
 
             return (snek::utils::index_of<C, component_list>() != -1);
-        };
+        }
 
-        static inline auto generate_entity_id() noexcept
+        static inline entity_index generate_entity_id() noexcept
         {
-            static EntityT new_id = 0;
-            EntityT old = new_id;
+            static entity_index new_id = 0;
+            entity_index old = new_id;
             new_id++;
             return old;
         };

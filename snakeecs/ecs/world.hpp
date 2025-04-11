@@ -8,7 +8,6 @@
 #include "world_policy.hpp"
 #include "traits.hpp"
 #include "light_view.hpp"
-
 #include <queue>
 
 namespace snek
@@ -34,7 +33,7 @@ namespace snek
         allocator_type alloc;
 
     public:
-        world() : alloc(), entities(), entity_store()
+        world() : entity_store(), entities(), alloc()
         {
             _component_pools.resize(component_list::size, nullptr);
         };
@@ -102,7 +101,7 @@ namespace snek
         [[nodiscard]] bool has_all(entity_type e) const noexcept
         {
             return (has<T>(e) && has<U>(e) && (has<Args>(e) && ...));
-        };
+        }
 
         template <typename C, typename... Args>
         C &bind(entity_type e, Args &&...args)
@@ -168,7 +167,7 @@ namespace snek
         {
 
             return {_component_pools};
-        };
+        }
 
         [[nodiscard]] allocator_type &
         get_allocator() const noexcept
