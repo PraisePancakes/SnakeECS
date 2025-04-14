@@ -59,7 +59,7 @@ void BMARK_SPARSE_SET_ITERATOR()
     auto t1 = high_resolution_clock::now();
     for (auto &el : ss)
     {
-        for (auto &e : el.second)
+        for (auto &e : el)
         {
             std::cout << e << std::endl;
         }

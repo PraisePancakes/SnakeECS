@@ -24,7 +24,8 @@ namespace snek::storage
     class sparse_set : public polymorphic_sparse_set
     {
         // where T is a single component type
-        std::vector<std::pair<size_t, T>> _dense;
+        std::vector<T> _packed;
+        std::vector<size_t> _dense;
         std::vector<size_t> _sparse; // will map the entity id to id in dense domain which is a 1:1 mapping to _packed_elements.
         constexpr static auto tombstone_v = snek::traits::tombstone_t<size_t>::null_v;
 
@@ -40,13 +41,13 @@ namespace snek::storage
 
         sparse_set(const sparse_set<T> &o) : _dense(o._dense), _sparse(o._sparse) {};
 
-        std::vector<std::pair<size_t, T>>::const_iterator begin()
+        std::vector<T>::const_iterator begin()
         {
-            return _dense.begin();
+            return _packed.begin();
         };
-        std::vector<std::pair<size_t, T>>::const_iterator end()
+        std::vector<T>::const_iterator end()
         {
-            return _dense.end();
+            return _packed.end();
         };
 
         void insert(size_t id, T elem)
@@ -56,7 +57,8 @@ namespace snek::storage
                 _sparse.resize(_sparse.size() * 2, tombstone_v);
             }
             _sparse[id] = _dense.size();
-            _dense.push_back(std::pair<size_t, T>(id, elem));
+            _dense.push_back(id);
+            _packed.push_back(elem);
         }
 
         [[nodiscard]] size_t size() const noexcept override
@@ -66,19 +68,24 @@ namespace snek::storage
         // check if _dense has elem (id)
         [[nodiscard]] bool contains(size_t elem) const noexcept override
         {
-            return (elem < _sparse.size() && _sparse[elem] < _dense.size() && _dense[_sparse[elem]].first == elem);
+            return (elem < _sparse.size() && _sparse[elem] < _dense.size() && _dense[_sparse[elem]] == elem);
         };
 
-        [[nodiscard]] std::vector<std::pair<size_t, T>> &get_dense()
+        [[nodiscard]] std::vector<size_t> &get_dense()
         {
             return this->_dense;
+        }
+
+        [[nodiscard]] std::vector<T> &get_packed()
+        {
+            return this->_packed;
         }
 
         void remove(size_t elem) override
         {
             if (!contains(elem))
                 return;
-            const auto last = _dense.back().first;
+            const auto last = _dense.back();
             std::swap(_dense.back(), _dense[_sparse[elem]]);
             std::swap(_sparse[last], _sparse[elem]);
             _dense.pop_back();
@@ -93,7 +100,7 @@ namespace snek::storage
         {
             if (!this->contains(id))
                 return nullptr;
-            return &_dense[_sparse[id]].second;
+            return &_packed[_sparse[id]];
         }
 
         T &get_ref(size_t id)
@@ -102,7 +109,7 @@ namespace snek::storage
             {
                 throw std::runtime_error("the set does not contain id : " + id);
             }
-            return _dense[_sparse[id]].second;
+            return _packed[_sparse[id]];
         }
 
         ~sparse_set()

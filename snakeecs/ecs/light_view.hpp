@@ -96,9 +96,9 @@ namespace snek::ecs
             {
                 for (auto e : driving_pool->get_dense())
                 {
-                    if (check<Ts...>(e.first))
+                    if (check<Ts...>(e))
                     {
-                        f(get_from<Ts>(e.first)...);
+                        f(get_from<Ts>(e)...);
                     }
                 }
             }
