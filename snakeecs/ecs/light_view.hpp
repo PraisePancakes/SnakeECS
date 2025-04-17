@@ -158,6 +158,11 @@ namespace snek::ecs
                 return filtered[row][col];
             };
 
+            const_reference operator->()
+            {
+                return filtered[row][col];
+            };
+
             bool operator==(const sparse_view_iterator &o) const
             {
                 return (row == o.row && col == o.col);
@@ -169,10 +174,87 @@ namespace snek::ecs
             ~sparse_view_iterator() {};
         };
 
+        template <typename WorldPolicy>
+        class const_sparse_view_iterator
+        {
+            using world_policy = WorldPolicy;
+            std::vector<std::vector<size_t>> filtered;
+            size_t row;
+            size_t col;
+
+        public:
+            using value_type = world_policy::entity_type;
+            using pointer = value_type *;
+            using difference_type = std::ptrdiff_t;
+            using size_type = size_t;
+            using iterator_category = std::bidirectional_iterator_tag;
+            using reference = value_type &;
+            using const_pointer = const value_type *;
+            using const_reference = const value_type &;
+
+            const_sparse_view_iterator(const std::vector<std::vector<size_t>> &filtered, size_t row, size_t col)
+                : filtered(filtered),
+                  row{row},
+                  col{col} {};
+
+            const_sparse_view_iterator &operator++()
+            {
+                if (col < filtered[row].size())
+                {
+                    col++;
+                }
+
+                if (row < filtered.size() && col >= filtered[row].size())
+                {
+                    row++;
+                    col = 0;
+                }
+                return *this;
+            }
+
+            const_sparse_view_iterator &operator--()
+            {
+                if (col > 0)
+                {
+                    col--;
+                }
+                else
+                {
+                    if (row > 0 && col <= 0)
+                    {
+                        row--;
+                        col = filtered[row].size() - 1;
+                    }
+                }
+
+                return *this;
+            };
+
+            const_reference operator*() const
+            {
+                return filtered[row][col];
+            };
+
+            const_reference operator->() const
+            {
+                return filtered[row][col];
+            };
+
+            bool operator==(const const_sparse_view_iterator &o) const
+            {
+                return (row == o.row && col == o.col);
+            }
+            bool operator!=(const const_sparse_view_iterator &o) const
+            {
+                return !(*this == o);
+            }
+            ~const_sparse_view_iterator() {};
+        };
+
     public:
         using iterator = sparse_view_iterator<world_policy>;
         using reverse_iterator = std::reverse_iterator<iterator>;
-        using const_iterator = const sparse_view_iterator<world_policy>;
+        using const_iterator = const_sparse_view_iterator<world_policy>;
         using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
         light_view(const std::vector<snek::storage::polymorphic_sparse_set *> &cp) : _component_pools(cp)
