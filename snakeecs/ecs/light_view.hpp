@@ -30,7 +30,22 @@ namespace snek::ecs
 *  @tparam World - underlying world type in which we are inspecting, this allows for common shared types.
 *  @tparam Ts... - parameter pack of type of components we want to view
 */
+    namespace internal
+    {
+        template <typename WorldPolicy, typename T>
+        bool helper_matched_ids(size_t id)
+        {
+            return WorldPolicy::template get_component_type_id<T>() == id;
+        }
 
+        template <typename WorldPolicy, typename... Cs>
+        bool matched_ids(size_t id)
+        {
+            return (helper_matched_ids<WorldPolicy, Cs>(id) || ...);
+        }
+    }
+
+    using namespace internal;
     template <typename World, typename... Ts>
     class light_view
     {
@@ -39,7 +54,7 @@ namespace snek::ecs
         using component_list = world_policy::component_list;
         using allocator_type = world_policy::allocator_type;
         std::vector<snek::storage::polymorphic_sparse_set *> _component_pools;
-        std::vector<snek::storage::polymorphic_sparse_set *> _filtered;
+        std::vector<std::vector<size_t>> _filtered;
 
         // first_component is the basis for the pool lookups,
         // each entity of type "first_component" will refer to the entities of other types via get_component<T>(e)
@@ -86,23 +101,12 @@ namespace snek::ecs
         {
             return (valid<Cs>(id) && ...);
         }
-        template <typename T>
-        bool helper_matched_ids(size_t id)
-        {
-            return world_policy::template get_component_type_id<T>() == id;
-        }
-
-        template <typename... Cs>
-        bool matched_ids(size_t id)
-        {
-            return (helper_matched_ids<Cs>(id) || ...);
-        }
 
         template <typename WorldPolicy>
         class sparse_view_iterator
         {
             using world_policy = WorldPolicy;
-            std::vector<snek::storage::polymorphic_sparse_set *> filtered;
+            std::vector<std::vector<size_t>> filtered;
             size_t row;
             size_t col;
 
@@ -116,19 +120,19 @@ namespace snek::ecs
             using const_pointer = const value_type *;
             using const_reference = const value_type &;
 
-            sparse_view_iterator(const std::vector<snek::storage::polymorphic_sparse_set *> &filtered, size_t row, size_t col)
+            sparse_view_iterator(const std::vector<std::vector<size_t>> &filtered, size_t row, size_t col)
                 : filtered(filtered),
                   row{row},
                   col{col} {};
 
             sparse_view_iterator &operator++()
             {
-                if (col < filtered[row]->size())
+                if (col < filtered[row].size())
                 {
                     col++;
                 }
 
-                if (row < filtered.size() && col >= filtered[row]->size())
+                if (row < filtered.size() && col >= filtered[row].size())
                 {
                     row++;
                     col = 0;
@@ -147,7 +151,7 @@ namespace snek::ecs
                     if (row > 0 && col <= 0)
                     {
                         row--;
-                        col = filtered[row]->size() - 1;
+                        col = filtered[row].size() - 1;
                     }
                 }
 
@@ -156,7 +160,7 @@ namespace snek::ecs
 
             world_policy::entity_type operator*()
             {
-                return filtered[row]->index(col);
+                return filtered[row][col];
             };
             bool operator==(const sparse_view_iterator &o) const
             {
@@ -177,9 +181,9 @@ namespace snek::ecs
         {
             for (size_t i = 0; i < cp.size(); i++)
             {
-                if (matched_ids<Ts...>(i))
+                if (matched_ids<world_policy, Ts...>(i))
                 {
-                    _filtered.push_back(cp[i]);
+                    _filtered.push_back(cp[i]->get_dense());
                 }
             }
         };

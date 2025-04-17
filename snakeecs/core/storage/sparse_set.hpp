@@ -14,6 +14,7 @@ namespace snek::storage
         virtual size_t size() const noexcept = 0;
         virtual bool contains(size_t id) const noexcept = 0;
         virtual size_t index(size_t id) const noexcept = 0;
+        virtual std::vector<size_t> get_dense() const noexcept = 0;
         virtual void clear() = 0;
         virtual void remove(size_t id) = 0;
         virtual ~polymorphic_sparse_set() {};
@@ -51,6 +52,11 @@ namespace snek::storage
         std::vector<T>::const_iterator end()
         {
             return _packed.end();
+        };
+
+        std::vector<size_t> get_dense() const noexcept override
+        {
+            return this->_dense;
         };
 
         void insert(size_t id, T elem)

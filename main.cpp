@@ -35,7 +35,7 @@ int main(int argc, char **argv)
     for (size_t i = 0; i < 10; i++)
     {
         auto e = w.spawn();
-        w.bind<component_a>(e, 0);
+        w.bind<component_a>(e, 1);
         w.bind<component_b>(e, 0);
     }
 
@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 
     for (auto it = v.begin(); it != v.end(); ++it)
     {
-        std::cout << *it << std::endl;
+        std::cout << v.get<component_a>(*it).x;
     }
 
     return 0;
