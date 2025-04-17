@@ -16,7 +16,7 @@ namespace snek
     template <typename EntityT, typename ComponentList, typename AllocatorT = std::allocator<EntityT>>
     struct world_policy
     {
-        using entity_index = EntityT;
+        using entity_type = EntityT;
         using component_list = ComponentList;
         using allocator_type = AllocatorT;
 
@@ -39,10 +39,12 @@ namespace snek
             return (snek::utils::index_of<C, component_list>() != -1);
         }
 
-        static inline entity_index generate_entity_id() noexcept
+
+
+        static inline entity_type generate_entity_id() noexcept
         {
-            static entity_index new_id = 0;
-            entity_index old = new_id;
+            static entity_type new_id = 0;
+            entity_type old = new_id;
             new_id++;
             return old;
         };

@@ -35,10 +35,11 @@ namespace snek::ecs
     class light_view
     {
         using world_policy = World::world_policy;
-        using entity_type = world_policy::entity_index;
+        using entity_type = world_policy::entity_type;
         using component_list = world_policy::component_list;
         using allocator_type = world_policy::allocator_type;
         std::vector<snek::storage::polymorphic_sparse_set *> _component_pools;
+        std::vector<snek::storage::polymorphic_sparse_set *> _filtered;
 
         // first_component is the basis for the pool lookups,
         // each entity of type "first_component" will refer to the entities of other types via get_component<T>(e)
@@ -85,9 +86,135 @@ namespace snek::ecs
         {
             return (valid<Cs>(id) && ...);
         }
+        template <typename T>
+        bool helper_matched_ids(size_t id)
+        {
+            return world_policy::template get_component_type_id<T>() == id;
+        }
+
+        template <typename... Cs>
+        bool matched_ids(size_t id)
+        {
+            return (helper_matched_ids<Cs>(id) || ...);
+        }
+
+        template <typename WorldPolicy>
+        class sparse_view_iterator
+        {
+            using world_policy = WorldPolicy;
+            std::vector<snek::storage::polymorphic_sparse_set *> filtered;
+            size_t row;
+            size_t col;
+
+        public:
+            using value_type = world_policy::entity_type;
+            using pointer = value_type *;
+            using difference_type = std::ptrdiff_t;
+            using size_type = size_t;
+            using iterator_category = std::bidirectional_iterator_tag;
+            using reference = value_type &;
+            using const_pointer = const value_type *;
+            using const_reference = const value_type &;
+
+            sparse_view_iterator(const std::vector<snek::storage::polymorphic_sparse_set *> &filtered, size_t row, size_t col)
+                : filtered(filtered),
+                  row{row},
+                  col{col} {};
+
+            sparse_view_iterator &operator++()
+            {
+                if (col < filtered[row]->size())
+                {
+                    col++;
+                }
+
+                if (row < filtered.size() && col >= filtered[row]->size())
+                {
+                    row++;
+                    col = 0;
+                }
+                return *this;
+            }
+
+            sparse_view_iterator &operator--()
+            {
+                if (col > 0)
+                {
+                    col--;
+                }
+                else
+                {
+                    if (row > 0 && col <= 0)
+                    {
+                        row--;
+                        col = filtered[row]->size() - 1;
+                    }
+                }
+
+                return *this;
+            };
+
+            world_policy::entity_type operator*()
+            {
+                return filtered[row]->index(col);
+            };
+            bool operator==(const sparse_view_iterator &o) const
+            {
+                return (row == o.row && col == o.col);
+            }
+            bool operator!=(const sparse_view_iterator &o) const
+            {
+                return !(*this == o);
+            }
+            ~sparse_view_iterator() {};
+        };
 
     public:
-        light_view(const std::vector<snek::storage::polymorphic_sparse_set *> &cp) : _component_pools(cp) {};
+        using iterator = sparse_view_iterator<world_policy>;
+        using reverse_iterator = std::reverse_iterator<iterator>;
+
+        light_view(const std::vector<snek::storage::polymorphic_sparse_set *> &cp) : _component_pools(cp)
+        {
+            for (size_t i = 0; i < cp.size(); i++)
+            {
+                if (matched_ids<Ts...>(i))
+                {
+                    _filtered.push_back(cp[i]);
+                }
+            }
+        };
+
+        iterator begin()
+        {
+            return iterator(_filtered, 0, 0);
+        };
+
+        iterator end()
+        {
+            int end_row = _filtered.size();
+            int end_col = 0;
+            return iterator(_filtered, end_row, end_col);
+        }
+
+        reverse_iterator rbegin()
+        {
+            int end_row = _filtered.size();
+            int end_col = 0;
+            iterator it(_filtered, end_row, end_col);
+            return reverse_iterator(it);
+        }
+
+        reverse_iterator rend()
+        {
+            iterator it(_filtered, 0, 0);
+            return reverse_iterator(it);
+        }
+
+        template <typename T>
+        T &get(const entity_type e)
+        {
+            return static_cast<snek::storage::sparse_set<T> *>(_component_pools[world_policy::template get_component_type_id<T>()])->get_ref(e);
+        }
 
         void for_each(std::function<void(Ts &...)> f)
         {

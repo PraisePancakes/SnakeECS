@@ -1,8 +1,8 @@
 #include <iostream>
-
 #include "snakeecs/tests/test_world_policy.hpp"
 #include "snakeecs/tests/test_component.hpp"
 #include "snakeecs/tests/test_world.hpp"
+#include "snakeecs/tests/configuration_policy.hpp"
 #include "snakeecs/debug/debug.hpp"
 #include <map>
 #include "snakeecs/benchmark/bmark_sparse_set.hpp"
@@ -29,6 +29,22 @@ int main(int argc, char **argv)
     TEST_STATIC_UTIL_TYPE_TRAITS();
 #endif
 #endif //_SNEK_DEBUG_
+
+    snek::world<snek::test_config::configuration_policy> w;
+
+    for (size_t i = 0; i < 10; i++)
+    {
+        auto e = w.spawn();
+        w.bind<component_a>(e, 0);
+        w.bind<component_b>(e, 0);
+    }
+
+    auto v = w.view<component_a, component_b>();
+
+    for (auto it = v.begin(); it != v.end(); ++it)
+    {
+        std::cout << *it << std::endl;
+    }
 
     return 0;
 }

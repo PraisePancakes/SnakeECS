@@ -13,6 +13,7 @@ namespace snek::storage
     {
         virtual size_t size() const noexcept = 0;
         virtual bool contains(size_t id) const noexcept = 0;
+        virtual size_t index(size_t id) const noexcept = 0;
         virtual void clear() = 0;
         virtual void remove(size_t id) = 0;
         virtual ~polymorphic_sparse_set() {};
@@ -30,6 +31,8 @@ namespace snek::storage
         constexpr static auto tombstone_v = snek::traits::tombstone_t<size_t>::null_v;
 
     public:
+        using value_type = T;
+
         sparse_set()
         {
             _sparse.resize(1000, tombstone_v);
@@ -61,8 +64,14 @@ namespace snek::storage
             _packed.push_back(elem);
         }
 
+        [[nodiscard]] size_t index(size_t id) const noexcept override
+        {
+            return _dense[_sparse[id]];
+        };
+
         [[nodiscard]] size_t size() const noexcept override
         {
+
             return _dense.size();
         }
         // check if _dense has elem (id)

@@ -21,7 +21,7 @@ namespace snek::test_config
         int x = 5;
 
         component_b(int x) : x(x) {};
-    };
+        };
 
     struct component_c
     {

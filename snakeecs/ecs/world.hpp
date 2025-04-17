@@ -19,7 +19,7 @@ namespace snek
 
     public:
         using world_policy = Policy;
-        using entity_type = Policy::entity_index;
+        using entity_type = Policy::entity_type;
         using component_list = Policy::component_list;
         using allocator_type = Policy::allocator_type;
 
