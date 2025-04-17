@@ -88,12 +88,7 @@ namespace snek::ecs
         {
             auto c_id = world_policy::template get_component_type_id<T>();
             auto *ss = static_cast<snek::storage::sparse_set<T> *>(_component_pools[c_id]);
-            if (ss)
-            {
-                return ss->contains(id);
-            }
-            std::cerr << "SNEK ABORT FOR COMPONENT " << typeid(T).name() << " : INVALID ENTITY " << std::to_string(id) << std::endl;
-            std::abort();
+            return (ss && ss->contains(id));
         }
 
         template <typename... Cs>
@@ -181,7 +176,7 @@ namespace snek::ecs
         {
             for (size_t i = 0; i < cp.size(); i++)
             {
-                if (matched_ids<world_policy, Ts...>(i))
+                if (cp[i] && matched_ids<world_policy, Ts...>(i))
                 {
                     _filtered.push_back(cp[i]->get_dense());
                 }

@@ -41,9 +41,10 @@ int main(int argc, char **argv)
 
     auto v = w.view<component_a, component_b>();
 
-    for (auto it = v.begin(); it != v.end(); ++it)
+    for (auto e : v)
     {
-        std::cout << v.get<component_a>(*it).x;
+        auto &a = v.get<component_a>(e);
+        std::cout << a.x << std::endl;
     }
 
     return 0;
