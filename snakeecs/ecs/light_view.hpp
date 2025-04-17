@@ -153,10 +153,11 @@ namespace snek::ecs
                 return *this;
             };
 
-            world_policy::entity_type operator*()
+            reference operator*()
             {
                 return filtered[row][col];
             };
+
             bool operator==(const sparse_view_iterator &o) const
             {
                 return (row == o.row && col == o.col);
@@ -171,6 +172,8 @@ namespace snek::ecs
     public:
         using iterator = sparse_view_iterator<world_policy>;
         using reverse_iterator = std::reverse_iterator<iterator>;
+        using const_iterator = const sparse_view_iterator<world_policy>;
+        using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
         light_view(const std::vector<snek::storage::polymorphic_sparse_set *> &cp) : _component_pools(cp)
         {
@@ -209,9 +212,22 @@ namespace snek::ecs
             return reverse_iterator(it);
         }
 
+        const_iterator cbegin()
+        {
+            return const_iterator(_filtered, 0, 0);
+        };
+
+        const_iterator cend()
+        {
+            int end_row = _filtered.size();
+            int end_col = 0;
+            return const_iterator(_filtered, end_row, end_col);
+        }
+
         template <typename T>
         T &get(const entity_type e)
         {
+            // down cast here is guarenteed to be well-defined, id known at compile time, pools assorted via id.
             return static_cast<snek::storage::sparse_set<T> *>(_component_pools[world_policy::template get_component_type_id<T>()])->get_ref(e);
         }
 
