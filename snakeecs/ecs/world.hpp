@@ -8,6 +8,7 @@
 #include "world_policy.hpp"
 #include "traits.hpp"
 #include "light_view.hpp"
+
 #include <queue>
 
 namespace snek
@@ -174,6 +175,9 @@ namespace snek
         {
             return alloc;
         }
+
+        
+
         ~world() {};
     };
 }

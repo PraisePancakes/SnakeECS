@@ -328,6 +328,21 @@ namespace snek::ecs
             }
         };
 
+        void for_each(std::function<void(entity_type id, Ts &...)> f)
+        {
+            auto *driving_pool = static_cast<snek::storage::sparse_set<first_component> *>(_component_pools[driving_index]);
+            if (driving_pool)
+            {
+                for (auto e : driving_pool->get_dense())
+                {
+                    if (check<Ts...>(e))
+                    {
+                        f(e, get_from<Ts>(e)...);
+                    }
+                }
+            }
+        };
+
         ~light_view() {};
     };
 

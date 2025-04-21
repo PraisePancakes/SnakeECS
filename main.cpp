@@ -32,19 +32,29 @@ int main(int argc, char **argv)
 
     snek::world<snek::test_config::configuration_policy> w;
 
-    // for (size_t i = 0; i < 10; i++)
-    // {
-    //     auto e = w.spawn();
-    //     w.bind<component_a>(e, 1);
-    //     w.bind<component_b>(e, 0);
-    // }
+    for (size_t i = 0; i < 10; i++)
+    {
+        auto e = w.spawn();
+        w.bind<component_a>(e, 1);
+    }
 
-    // auto v = w.view<component_a, component_b>();
+    for (size_t i = 0; i < 10; i++)
+    {
+        auto e = w.spawn();
+        w.bind<component_b>(e, 0);
+    }
 
-    // for (auto it = v.cbegin(); it != v.cend(); ++it)
-    // {
-    //     *it = 6;
-    // }
+    auto v = w.view<component_b>();
+    auto av = w.view<component_a>();
+
+    for (auto it = v.begin(); it != v.end(); ++it)
+    {
+        w.kill(*it);
+    }
+    for (auto it = av.begin(); it != av.end(); ++it)
+    {
+        std::cout << std::boolalpha << w.contains(*it);
+    }
 
     return 0;
 }
