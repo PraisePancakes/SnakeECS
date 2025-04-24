@@ -39,8 +39,6 @@ namespace snek
             return (snek::utils::index_of<C, component_list>() != -1);
         }
 
-
-
         static inline entity_type generate_entity_id() noexcept
         {
             static entity_type new_id = 0;
