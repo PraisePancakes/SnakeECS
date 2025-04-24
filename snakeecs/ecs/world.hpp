@@ -136,31 +136,6 @@ namespace snek
         }
 
         template <typename C, typename... Args>
-        C &bind(entity_type e, entity_type tag, Args &&...args)
-        {
-            SNEK_ASSERT(world_policy::template is_valid_component<C>(), "C must be a registered component. ");
-            C *component = new C(std::forward<Args>(args)...);
-            size_t c_id = world_policy::template get_component_type_id<C>();
-            // TO DO ADD GUARD TO CHECK IF ENTITY HAS COMPONENT
-            snek::storage::sparse_set<C> *ss = (snek::storage::sparse_set<C> *)_component_pools[c_id];
-            if (ss)
-            {
-                if (has<C>(e))
-                {
-                    return *ss->get(e);
-                }
-            }
-            else
-            {
-                ss = new snek::storage::sparse_set<C>();
-            }
-            ss->insert(e, *component);
-            _component_pools[c_id] = ss;
-            this->_tagged_pools[tag]->insert(e, *component);
-            return *component;
-        }
-
-        template <typename C, typename... Args>
         C &bind(entity_type e, Args &&...args)
         {
 
