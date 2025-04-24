@@ -130,9 +130,9 @@ namespace snek
             return (has<T>(e) && has<U>(e) && (has<Args>(e) && ...));
         }
 
-        std::unordered_map<entity_type, std::vector<entity_type>> get_tagged_entities(entity_type tag) const
+        std::vector<entity_type> get_tagged_entities(entity_type tag) const
         {
-            return this->_tagged_entities[tag];
+            return this->_tagged_entities[tag].second;
         }
 
         template <typename C, typename... Args>
