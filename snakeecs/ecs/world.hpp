@@ -132,7 +132,7 @@ namespace snek
 
         std::vector<entity_type> get_tagged_entities(entity_type tag) const
         {
-            return this->_tagged_entities[tag].second;
+            return this->_tagged_entities[tag];
         }
 
         template <typename C, typename... Args>
