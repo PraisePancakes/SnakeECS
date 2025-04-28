@@ -102,6 +102,7 @@ namespace snek::storage
             if (!contains(elem))
                 return;
             const auto last = _dense.back();
+            std::swap(_packed.back(), _packed[_sparse[elem]]);
             std::swap(_dense.back(), _dense[_sparse[elem]]);
             std::swap(_sparse[last], _sparse[elem]);
             _dense.pop_back();

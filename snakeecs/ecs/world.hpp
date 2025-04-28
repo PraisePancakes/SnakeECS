@@ -168,7 +168,16 @@ namespace snek
         }
 
         template <typename C>
-        C &get(entity_type e)
+        C *get(entity_type e)
+        {
+            SNEK_ASSERT(world_policy::template is_valid_component<C>(), "C must be a registered component. ");
+            size_t c_id = world_policy::template get_component_type_id<C>();
+            auto ss = static_cast<snek::storage::sparse_set<C> *>(_component_pools[c_id]);
+            return ss->get(e);
+        }
+
+        template <typename C>
+        C &get_ref(entity_type e)
         {
             SNEK_ASSERT(world_policy::template is_valid_component<C>(), "C must be a registered component. ");
             size_t c_id = world_policy::template get_component_type_id<C>();

@@ -36,9 +36,9 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
     {
         auto e = w.spawn();
         w.bind<component_c>(e, 5, 'c', "COOL");
-        int a = w.get<component_c>(e).a;
-        char b = w.get<component_c>(e).b;
-        std::string c = w.get<component_c>(e).c;
+        int a = w.get_ref<component_c>(e).a;
+        char b = w.get_ref<component_c>(e).b;
+        std::string c = w.get_ref<component_c>(e).c;
         LOG("ENTITY " + std::to_string(e) + " C(a) " + std::to_string(a) + " C(b) " + b + " C(c) " + c);
     }
 
@@ -49,8 +49,8 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
     {
         auto e = w.spawn();
         w.initialize<component_a, component_b>(e, 5, 2);
-        int a = w.get<component_a>(e).x;
-        int b = w.get<component_b>(e).x;
+        int a = w.get_ref<component_a>(e).x;
+        int b = w.get_ref<component_b>(e).x;
         LOG("ENTITY " + std::to_string(e) + " A " + std::to_string(a) + " B " + std::to_string(b));
     }
     LOG("\n.\n.\n.\n.\n.\n.");
@@ -124,7 +124,7 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
     LOG(".\n.\n.");
     for (size_t i = 0; i < 10; i++)
     {
-        int x = w.get<component_a>(i).x;
+        int x = w.get_ref<component_a>(i).x;
         LOG("ENTITY " + std::to_string(i) + " " + std::to_string(x));
     }
     LOG("\n.\n.\n.\n.\n.\n.");
