@@ -25,6 +25,7 @@ namespace snek
         using allocator_type = AllocatorT;
         using traits = entity_traits<EntityT>;
         using entity_type = traits::entity_type;
+        static constexpr auto version_size = std::numeric_limits<typename traits::version_type>::digits;
 
         static_assert(snek::entity::is_entity_type<EntityT>::value, "EntityT must meet following type requirements : uint64_t , uint32_t");
         static_assert(snek::traits::type_is_allocator<AllocatorT>::value, "AllocatorT must meet allocator requirements");
@@ -48,8 +49,7 @@ namespace snek
         [[nodiscard]] static entity_type to_entity(entity_type id)
         {
             // get higher bit representation of entity
-            auto n_bits_from_lower = std::numeric_limits<typename traits::version_type>::digits;
-            return (id >> n_bits_from_lower);
+            return (id >> version_size);
         };
 
         [[nodiscard]] static entity_type to_version(entity_type id)
@@ -58,12 +58,19 @@ namespace snek
             return (id & traits::version_mask);
         }
 
+        static void increment_version(entity_type &id)
+        {
+            auto lo = to_version(id);
+            auto hi = to_entity(id);
+            id = (hi << version_size | (++lo));
+        };
+
         static inline entity_type generate_entity_id() noexcept
         {
             static entity_type new_id = 0;
             entity_type old = new_id;
             new_id++;
-            return old;
+            return (old <<= version_size);
         };
     };
 
