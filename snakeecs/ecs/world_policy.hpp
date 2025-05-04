@@ -23,9 +23,12 @@ namespace snek
 
         using component_list = ComponentList;
         using allocator_type = AllocatorT;
-        using traits = entity_traits<EntityT>;
+        using traits = entity::entity_traits<EntityT>;
         using entity_type = traits::entity_type;
-        static constexpr auto version_size = std::numeric_limits<typename traits::version_type>::digits;
+        using version_type = traits::version_type;
+        static constexpr auto version_size = std::numeric_limits<version_type>::digits;
+        static constexpr auto max_version = std::numeric_limits<version_type>::max();
+        static constexpr auto tombstone_v = snek::traits::tombstone_t<entity_type>::null_v;
 
         static_assert(snek::entity::is_entity_type<EntityT>::value, "EntityT must meet following type requirements : uint64_t , uint32_t");
         static_assert(snek::traits::type_is_allocator<AllocatorT>::value, "AllocatorT must meet allocator requirements");
@@ -58,10 +61,22 @@ namespace snek
             return (id & traits::version_mask);
         }
 
-        static void increment_version(entity_type &id)
+        static void to_tombstone(entity_type &id)
         {
             auto lo = to_version(id);
             auto hi = to_entity(id);
+            hi |= tombstone_v;
+            id = (hi << version_size | (lo));
+            
+        };
+
+        static void increment_version(entity_type &id)
+        {
+            if (to_version(id) >= max_version)
+                return;
+            auto lo = to_version(id);
+            auto hi = to_entity(id);
+
             id = (hi << version_size | (++lo));
         };
 

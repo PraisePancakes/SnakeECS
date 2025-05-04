@@ -20,6 +20,7 @@ namespace snek
     public:
         using world_policy = Policy;
         using entity_type = Policy::entity_type;
+        using version_type = Policy::version_type;
         using component_list = Policy::component_list;
         using allocator_type = Policy::allocator_type;
 
@@ -82,7 +83,7 @@ namespace snek
             }
             entities.push_back(id);
             _tagged_entities[tag].push_back(id);
-            return world_policy::to_entity(id);
+            return world_policy::to_entity(id); // return index of entity
         };
 
         [[nodiscard]] bool contains(entity_type id)
@@ -102,6 +103,11 @@ namespace snek
                 return ss->contains(e);
             }
             return false;
+        }
+
+        [[nodiscard]] entity_type to_version(const entity_type id)
+        {
+            return world_policy::to_version(entities[id]);
         }
 
         template <typename T>
@@ -190,12 +196,9 @@ namespace snek
 
         void kill(entity_type e)
         {
-
-            auto id = entities[e];
-            world_policy::increment_version(id);
-
-            entity_store.push(id);
-            entities[e] = snek::traits::tombstone_t<entity_type>::null_v;
+            world_policy::increment_version(entities[e]);
+            entity_store.push(entities[e]);
+            world_policy::to_tombstone(entities[e]); // converts entity bits to tombstone, leaves version untouched
 
             for (auto &s : _component_pools)
             {

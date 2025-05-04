@@ -39,4 +39,11 @@ void TEST_STATIC_UTIL_TYPE_TRAITS()
     static_assert(snek::traits::is_type_list<snek::test_config::component_types>::value, "is not a type list");
 }
 
+void TEST_STATIC_ENTITY_TRAITS()
+{
+    static_assert(snek::entity::is_entity_type<std::uint32_t>::value, "is entity type");
+    static_assert(!snek::entity::is_entity_type<int>::value, "isn't entity type");
+    static_assert(snek::entity::is_entity_type<std::uint64_t>::value, "is entity type");
+}
+
 #endif

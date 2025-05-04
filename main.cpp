@@ -26,6 +26,7 @@ int main(int argc, char **argv)
 #if _SNEK_STATIC_TEST_
     TEST_STATIC_WORLD_POLICY();
     TEST_STATIC_CONFIG_POLICY();
+    TEST_STATIC_ENTITY_TRAITS();
     TEST_STATIC_UTIL_TYPE_TRAITS();
 #endif
 #endif //_SNEK_DEBUG_
@@ -38,7 +39,7 @@ int main(int argc, char **argv)
     // }
 
     // std::cout << "ID : " << e << std::endl;
-    // std::cout << "Entity : " << test_config::configuration_policy::to_entity(e) << std::endl;
+    // std::cout << "To Entity : " << test_config::configuration_policy::to_entity(e) << std::endl;
     // std::cout << "Version : " << test_config::configuration_policy::to_version(e) << std::endl;
     // test_config::configuration_policy::increment_version(e);
     // std::cout << "New Version : " << test_config::configuration_policy::to_version(e) << std::endl;
@@ -49,5 +50,9 @@ int main(int argc, char **argv)
     // test_config::configuration_policy::increment_version(e);
     // std::cout << "New Version : " << test_config::configuration_policy::to_version(e) << std::endl;
     // std::cout << e << std::endl;
+    // test_config::configuration_policy::to_tombstone(e);
+    // std::cout << "Tombstoned ID : " << e << std::endl;
+    // std::cout << "To Entity : " << test_config::configuration_policy::to_entity(e) << std::endl;
+    // std::cout << "Version : " << test_config::configuration_policy::to_version(e) << std::endl;
     return 0;
 }
