@@ -42,10 +42,11 @@ namespace snek
         [[nodiscard]] entity_type spawn()
         {
             entity_type id = world_policy::generate_entity_id();
-            bool overflowed = (id >= snek::traits::tombstone_t<entity_type>::null_v);
+            bool overflowed = (world_policy::to_entity(id) >= snek::traits::tombstone_t<entity_type>::null_v);
 
             if (overflowed) [[unlikely]]
             {
+
                 // first check if the store is not empty
                 if (!entity_store.empty())
                 {
@@ -190,7 +191,10 @@ namespace snek
         void kill(entity_type e)
         {
 
-            entity_store.push(e);
+            auto id = entities[e];
+            world_policy::increment_version(id);
+
+            entity_store.push(id);
             entities[e] = snek::traits::tombstone_t<entity_type>::null_v;
 
             for (auto &s : _component_pools)
