@@ -61,13 +61,17 @@ namespace snek
             return (id & traits::version_mask);
         }
 
+        [[nodiscard]] static bool is_tombstone(const entity_type id)
+        {
+            return to_entity(id) == to_entity(tombstone_v);
+        }
+
         static void to_tombstone(entity_type &id)
         {
             auto lo = to_version(id);
             auto hi = to_entity(id);
             hi |= tombstone_v;
             id = (hi << version_size | (lo));
-            
         };
 
         static void increment_version(entity_type &id)

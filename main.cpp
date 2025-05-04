@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 #endif
 #endif //_SNEK_DEBUG_
 
-    // std::uint64_t e = 0;
+      // std::uint64_t e = 0;
 
     // for (size_t i = 1; i <= 11; i++)
     // {

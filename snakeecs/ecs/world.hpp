@@ -88,8 +88,9 @@ namespace snek
 
         [[nodiscard]] bool contains(entity_type id)
         {
+
             return id < entities.size() &&
-                   entities[id] != snek::traits::tombstone_t<entity_type>::null_v;
+                   !world_policy::is_tombstone(entities[id]);
         }
 
         template <typename C>
