@@ -60,7 +60,7 @@ namespace snek
             }
 
             entities.push_back(id);
-            _tagged_entities[-1].push_back(id);
+            _tagged_entities[-1].push_back(world_policy::to_entity(id));
 
             return world_policy::to_entity(id);
         };
@@ -68,7 +68,7 @@ namespace snek
         [[nodiscard]] entity_type spawn(entity_type tag)
         {
             entity_type id = world_policy::generate_entity_id();
-            bool overflowed = (id >= snek::traits::tombstone_t<entity_type>::null_v);
+            bool overflowed = (world_policy::to_entity(id) >= snek::traits::tombstone_t<entity_type>::null_v);
             if (overflowed) [[unlikely]]
             {
                 // first check if the store is not empty
@@ -82,7 +82,8 @@ namespace snek
                 // if its empty then no choice but to continue the ring of id's so back to 0 we go
             }
             entities.push_back(id);
-            _tagged_entities[tag].push_back(id);
+            _tagged_entities[tag].push_back(world_policy::to_entity(id));
+
             return world_policy::to_entity(id); // return index of entity
         };
 
@@ -140,7 +141,7 @@ namespace snek
             return (has<T>(e) && has<U>(e) && (has<Args>(e) && ...));
         }
 
-        std::vector<entity_type> get_tagged_entities(entity_type tag) const
+        std::vector<entity_type> get_tagged_entities(entity_type tag)
         {
             return this->_tagged_entities[tag];
         }
