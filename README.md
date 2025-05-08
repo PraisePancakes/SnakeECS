@@ -81,12 +81,36 @@ Since our components are explicitly injected via the policy, we don't have to wo
         return 0;
     }
 ```
+### **_Entity Representation_**
+In SnakeECS, entities are represented via either a 32-bit or 64-bit number. 
+These numbers represent two common ideas.
+1. Indexing
+2. Versioning
 
+The lower 8 bits of each entity ID are reserved strictly for versioning. This means each entity has a max version of 255, this version does not wrap to 0. 255 will be the last version of the entity, no matter what.
+The remaining higher bits (depending on whether 32-bit or 64-bit) are reserved strictly for indexing the entity. 
+For example, when you call,
+
+```C++
+auto entity = world.spawn();
+//if entity = 1 its representation (assuming 32-bit) -> 0000 0000 0000 0000 0000 0001   0000 0000
+//                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ : ^^^^^^^^^
+//                                                        index representation          version representation
+```
+an index is returned to the caller. SnakeECS bases all API calls on indexing rather than arbitrary IDs. The library handles IDs internally.
+To retrieve the version of an entity, you may call :
+```C++
+auto version = world.to_version(entity);
+```
+versions are incremented on each "removal".
+```C++
+ world.kill(entity); // increments version
+```
 
 ## Build
 
-This project is built using CMake (Version 3.28) with ISO C++20 Standard.
-To run existing tests, from the root folder input these commands if not done already.
+This project uses CMake (Version 3.28) with the ISO C++20 Standard.
+To run existing tests, from the root folder, input these commands if not done already.
 ```bash
   mkdir build 
   cd build
