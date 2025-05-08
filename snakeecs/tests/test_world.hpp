@@ -194,6 +194,23 @@ void TEST_WORLD_MULTIPLE_ENTITIES()
                 LOG("A : " + std::to_string(ax) + " B : " + std::to_string(bx)); });
 
     std::cout << std::endl;
+
+    LOG("\n.\n.\n.\n.\n.\n.");
+    LOG_DESCRIPTION("SNEK_TEST", "TEST_WORLD", " WORLD ENTITY VERSIONS");
+    LOG(".\n.\n.");
+    LOG("EXPECTED BEFORE : 0");
+    for (size_t i = 0; i < 10; i++)
+    {
+        LOG("ENTITY ID : " + std::to_string(w.to_id(i)) + " VERSION : " + std::to_string(w.to_version(i)));
+    }
+
+    LOG("EXPECTED AFTER : 1");
+    for (size_t i = 0; i < 10; i++)
+    {
+        w.kill(i);
+        LOG("ENTITY ID : " + std::to_string(w.to_id(i)) + " VERSION : " + std::to_string(w.to_version(i)));
+    }
+    std::cout << std::endl;
 }
 
 #endif

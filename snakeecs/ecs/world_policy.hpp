@@ -35,6 +35,8 @@ namespace snek
         static_assert(snek::traits::is_type_list<ComponentList>::value, "ComponentList must meet the component type list requirements");
         static_assert(component_list::size <= component_list::list_size, "ComponentList size must be less than required list size criteria");
 
+
+        
         template <typename C>
         [[nodiscard]] static constexpr size_t get_component_type_id()
         {

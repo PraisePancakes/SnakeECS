@@ -106,9 +106,14 @@ namespace snek
             return false;
         }
 
-        [[nodiscard]] entity_type to_version(const entity_type id)
+        [[nodiscard]] entity_type to_version(const entity_type index)
         {
-            return world_policy::to_version(entities[id]);
+            return world_policy::to_version(entities[index]);
+        }
+
+        [[nodiscard]] entity_type to_id(const entity_type index)
+        {
+            return world_policy::to_entity(entities[index]);
         }
 
         template <typename T>
