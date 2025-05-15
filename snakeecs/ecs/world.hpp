@@ -87,7 +87,7 @@ namespace snek
             return world_policy::to_entity(id); // return index of entity
         };
 
-        [[nodiscard]] bool contains(entity_type id)
+        [[nodiscard]] bool contains(entity_type id) const
         {
 
             return id < entities.size() &&
@@ -218,6 +218,13 @@ namespace snek
 
         template <typename... Ts>
         [[nodiscard]] snek::ecs::light_view<this_type, Ts...> view()
+        {
+            static_assert((world_policy::template is_valid_component_set<Ts...>()), "Template pack must include world_policy components");
+            return {_component_pools};
+        }
+
+        template <typename... Ts>
+        [[nodiscard]] const snek::ecs::light_view<this_type, Ts...> view() const
         {
             static_assert((world_policy::template is_valid_component_set<Ts...>()), "Template pack must include world_policy components");
             return {_component_pools};
