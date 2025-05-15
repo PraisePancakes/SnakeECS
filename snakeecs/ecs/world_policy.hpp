@@ -24,23 +24,26 @@ namespace snek
 
     }
 
-    template <typename EntityT, typename ComponentList, typename AllocatorT>
+    template <typename EntityT, typename ComponentList, typename AllocatorT, typename TagT>
     struct world_policy;
 
-    template <typename EntityT, typename ComponentList, typename AllocatorT = std::allocator<EntityT>>
+    template <typename EntityT, typename ComponentList, typename AllocatorT = std::allocator<EntityT>, typename TagT>
     struct world_policy
     {
 
-        using this_type = world_policy<EntityT, ComponentList, AllocatorT>;
+        using this_type = world_policy<EntityT, ComponentList, AllocatorT, TagT>;
         using component_list = ComponentList;
         using allocator_type = AllocatorT;
+        using tag_type = TagT;
         using traits = entity::entity_traits<EntityT>;
+
         using entity_type = traits::entity_type;
         using version_type = traits::version_type;
         static constexpr auto version_size = std::numeric_limits<version_type>::digits;
         static constexpr auto max_version = std::numeric_limits<version_type>::max();
         static constexpr auto tombstone_v = snek::traits::tombstone_t<entity_type>::null_v;
 
+        static_assert(std::is_enum_v<TagT> || std::is_integral_v<TagT>, "TagT must be an enumurable or enum type");
         static_assert(snek::entity::is_entity_type<EntityT>::value, "EntityT must meet following type requirements : uint64_t , uint32_t");
         static_assert(snek::traits::type_is_allocator<AllocatorT>::value, "AllocatorT must meet allocator requirements");
         static_assert(snek::traits::is_type_list<ComponentList>::value, "ComponentList must meet the component type list requirements");

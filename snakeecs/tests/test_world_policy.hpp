@@ -33,11 +33,11 @@ void TEST_STATIC_UTIL_TYPE_TRAITS()
     static_assert(!snek::traits::has_value_type_v<int>, "doesnt have value_type typedef");
     static_assert(snek::traits::has_allocate<std::allocator<int>>::value, "has allocate method that accepts size_t");
     static_assert(!snek::traits::has_allocate<int>::value, "doesnt have allocate method that accepts size_t");
-    static_assert(snek::traits::tlist_has_size_constant<snek::test_config::component_types>::value, "has size constant");
+    static_assert(snek::traits::tlist_has_size_constant<snek::test_config::component_type>::value, "has size constant");
     static_assert(!snek::traits::tlist_has_size_constant<int>::value, "doesnt have size constant");
     static_assert(!snek::traits::is_type_list<int>::value, "is not a type list");
     static_assert(!snek::traits::is_type_list<std::map<int, char>>::value, "is not a type list");
-    static_assert(snek::traits::is_type_list<snek::test_config::component_types>::value, "is not a type list");
+    static_assert(snek::traits::is_type_list<snek::test_config::component_type>::value, "is not a type list");
 }
 
 void TEST_STATIC_ENTITY_TRAITS()
