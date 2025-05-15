@@ -14,6 +14,16 @@ namespace snek
     // #ALLOCATOR_TYPE
     using namespace traits;
 
+    namespace helper
+    {
+        template <typename Policy, typename C>
+        [[nodiscard]] static constexpr bool check_valid_component_index()
+        {
+            return (snek::utils::index_of<C, typename Policy::component_list>() != -1);
+        }
+
+    }
+
     template <typename EntityT, typename ComponentList, typename AllocatorT>
     struct world_policy;
 
@@ -21,6 +31,7 @@ namespace snek
     struct world_policy
     {
 
+        using this_type = world_policy<EntityT, ComponentList, AllocatorT>;
         using component_list = ComponentList;
         using allocator_type = AllocatorT;
         using traits = entity::entity_traits<EntityT>;
@@ -35,8 +46,6 @@ namespace snek
         static_assert(snek::traits::is_type_list<ComponentList>::value, "ComponentList must meet the component type list requirements");
         static_assert(component_list::size <= component_list::list_size, "ComponentList size must be less than required list size criteria");
 
-
-        
         template <typename C>
         [[nodiscard]] static constexpr size_t get_component_type_id()
         {
@@ -44,11 +53,16 @@ namespace snek
             return snek::utils::index_of<C, component_list>();
         }
 
-        template <typename C>
+        template <typename Cs>
         [[nodiscard]] static constexpr bool is_valid_component()
         {
+            return (helper::check_valid_component_index<this_type, Cs>());
+        }
 
-            return (snek::utils::index_of<C, component_list>() != -1);
+        template <typename... Cs>
+        [[nodiscard]] static constexpr bool is_valid_component_set()
+        {
+            return (helper::check_valid_component_index<this_type, Cs>() && ...);
         }
 
         [[nodiscard]] static entity_type to_entity(entity_type id)
