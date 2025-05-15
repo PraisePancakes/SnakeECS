@@ -23,6 +23,8 @@ namespace snek
         using version_type = Policy::version_type;
         using component_list = Policy::component_list;
         using allocator_type = Policy::allocator_type;
+        using tag_type = Policy::tag_type;
+        using underlying_tag_type = std::underlying_type_t<tag_type>;
 
     private:
         using this_type = world<Policy>;
@@ -30,7 +32,7 @@ namespace snek
         std::queue<entity_type> entity_store;
         std::vector<entity_type, allocator_type> entities;
         std::vector<snek::storage::polymorphic_sparse_set *> _component_pools;
-        std::unordered_map<entity_type, std::vector<entity_type>> _tagged_entities;
+        std::unordered_map<underlying_tag_type, std::vector<entity_type>> _tagged_entities;
 
         allocator_type alloc;
 
@@ -65,7 +67,12 @@ namespace snek
             return world_policy::to_entity(id);
         };
 
-        [[nodiscard]] entity_type spawn(entity_type tag)
+                [[nodiscard]] entity_type spawn(tag_type tag)
+        {
+            return spawn(static_cast<underlying_tag_type>(tag));
+        }
+
+        [[nodiscard]] entity_type spawn(underlying_tag_type tag)
         {
             entity_type id = world_policy::generate_entity_id();
             bool overflowed = (world_policy::to_entity(id) >= snek::traits::tombstone_t<entity_type>::null_v);
