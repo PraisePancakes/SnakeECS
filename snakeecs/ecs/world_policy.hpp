@@ -19,7 +19,7 @@ namespace snek
         template <typename Policy, typename C>
         [[nodiscard]] static constexpr bool check_valid_component_index()
         {
-            return (snek::utils::index_of<C, typename Policy::component_list>() != -1);
+            return (snek::utils::index_of<std::remove_cv_t<C>, typename Policy::component_list>() != -1);
         }
 
     }
