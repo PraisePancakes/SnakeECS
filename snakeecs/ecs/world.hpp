@@ -67,7 +67,7 @@ namespace snek
             return world_policy::to_entity(id);
         };
 
-                [[nodiscard]] entity_type spawn(tag_type tag)
+        [[nodiscard]] entity_type spawn(tag_type tag)
         {
             return spawn(static_cast<underlying_tag_type>(tag));
         }
@@ -148,7 +148,12 @@ namespace snek
             return (has<T>(e) && has<U>(e) && (has<Args>(e) && ...));
         }
 
-        std::vector<entity_type> get_tagged_entities(entity_type tag)
+        std::vector<entity_type> get_tagged_entities(tag_type tag)
+        {
+            return get_tagged_entities(static_cast<underlying_tag_type>(tag));
+        }
+
+        std::vector<entity_type> get_tagged_entities(underlying_tag_type tag)
         {
             return this->_tagged_entities[tag];
         }
