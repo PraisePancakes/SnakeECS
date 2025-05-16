@@ -343,6 +343,11 @@ namespace snek::ecs
             }
         };
 
+        std::vector<std::vector<entity_type>> filtered() const
+        {
+            return this->_filtered;
+        };
+
         ~light_view() {};
     };
 
