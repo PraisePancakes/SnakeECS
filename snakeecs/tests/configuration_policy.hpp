@@ -47,7 +47,7 @@ namespace snek::test_config
     // #ENTITY_TYPE
     // #COMPONENT_TYPE
     // #ALLOCATOR_TYPE
-    using configuration_policy = snek::world_policy<std::uint64_t, component_type, std::allocator<std::uint64_t>, TagTypes>;
+    using configuration_policy = snek::world_policy<std::uint64_t, component_type, TagTypes, std::allocator<std::uint64_t>>;
 
 };
 

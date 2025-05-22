@@ -32,14 +32,14 @@ namespace snek
     {
     };
 
-    template <typename EntityT, typename ComponentList, typename AllocatorT, typename EntityTag, typename PolicyTag>
+    template <typename EntityT, typename ComponentList, typename EntityTag, typename AllocatorT, typename PolicyTag>
     struct world_policy;
 
-    template <typename EntityT, typename ComponentList, typename AllocatorT = std::allocator<EntityT>, typename EntityTag, typename PolicyTag = snek_main_policy_tag>
+    template <typename EntityT, typename ComponentList, typename EntityTag, typename AllocatorT = std::allocator<EntityT>, typename PolicyTag = snek_main_policy_tag>
     struct world_policy
     {
 
-        using this_type = world_policy<EntityT, ComponentList, AllocatorT, EntityTag, PolicyTag>;
+        using this_type = world_policy<EntityT, ComponentList, EntityTag, AllocatorT, PolicyTag>;
         using component_list = ComponentList;
         using allocator_type = AllocatorT;
         using tag_type = EntityTag;
@@ -122,7 +122,7 @@ namespace snek
         }
 
         template <typename T>
-        constexpr static bool is_tagged()
+        constexpr static bool policy_is_tagged()
         {
             return std::is_same_v<T, PolicyTag>;
         }
