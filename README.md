@@ -1,4 +1,4 @@
-# SnakeECS : Rtti-free, Policy-based ECS framework.
+# SnakeECS: Rtti-free, Policy-based ECS framework.
 ## **_Introduction_**
 An Entity Component System is an architectural design pattern aimed at performing operations within a system in a cache-friendly manner.
 There is too much to get into with this design pattern, so check out more information on its usage and concept [here](https://skypjack.github.io/2019-02-14-ecs-baf-part-1/).
@@ -15,13 +15,20 @@ A configuration policy is just a configuration for your world. The policy is com
 
 - entity type     : an integral type (u32, u64) for your entity
 - component list  : a type list of all the components needed for your world
-- world allocator : how the internal storage of this world should be allocated. (defaulted to std::allocator<entity_type>)
 - tag type        : an enumerable list of constants for different entity tags 
+- world allocator : how the internal storage of this world should be allocated. (defaulted to std::allocator<entity_type>)
 - policy tag type : a tag that distinguishes this policy from others (defaulted to snek::snek_main_policy_tag)
 ```c++
 //assuming we have this set of components (a, b, c, d)
 using component_types = snek::component_list<component_a, component_b, component_c, component_d>;
-using configuration_policy = snek::world_policy<std::uint64_t, component_types, std::allocator<std::uint64_t>>;
+
+enum class TagTypes
+{
+  PLAYER,
+  ENEMY
+};
+
+using configuration_policy = snek::world_policy<std::uint64_t, component_types, TagTypes, std::allocator<std::uint64_t>, snek::snek_main_policy_tag>;
 ```
 Since our components are explicitly injected via the policy, we don't have to worry about any runtime overhead with dynamic component types.
 ### **_Unified Policy Systems_**
@@ -37,13 +44,13 @@ snek::world<game_configuration_policy> game_world;
 Let's say both states incorporate a particle system, but the game state may incorporate particles relative to rigid bodies.
 ```c++
 using game_component_types = snek::component_list<particle, rigidbody>;
-using game_configuration_policy = snek::world_policy<std::uint64_t, game_component_types, std::allocator<std::uint64_t>>;
+using game_configuration_policy = snek::world_policy<std::uint64_t, game_component_types, GameEntityTags>;
 
 using menu_component_types = snek::component_list<particle>;
-using menu_configuration_policy = snek::world_policy<std::uint64_t, menu_component_types, std::allocator<std::uint64_t>>;
+using menu_configuration_policy = snek::world_policy<std::uint64_t, menu_component_types, MenuEntityTags>;
 
 ```
-We can create one system that handles both of these cases through static policy constraints :
+We can create a system that handles both of these cases through static policy constraints :
 ```c++
 
 template<typename Policy>
@@ -74,7 +81,7 @@ void update(float dt) {
 
 }
 ```
-However, there is one problem: what if both worlds share the same set of components...?
+However, there is one problem: what if both worlds share the same components...?
 
 ### **_Policy Tags_**
 The world policy takes a policy tag as its final template argument (defaulted to snek::snek_main_policy_tag). This argument must derive from snek::policy_tag
@@ -112,8 +119,14 @@ and may be used to distinguish different policies in our unified system.
         ~B() {};
     };
 
+    enum class TagTypes
+    {
+        PLAYER,
+        ENEMY
+    };
+
     using component_types = snek::component_list<A, B>;
-    using configuration_policy = snek::world_policy<std::uint64_t, component_types, std::allocator<std::uint64_t>>;
+    using configuration_policy = snek::world_policy<std::uint64_t, component_types, TagTypes>;
 
     // systematic view
     void update(snek::world<configuration_policy>& w) {
@@ -167,7 +180,7 @@ auto entity = world.spawn();
 //                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ : ^^^^^^^^^
 //                                                        index representation          version representation
 ```
-an index is returned to the caller. SnakeECS bases all API calls on indexing rather than arbitrary IDs. The library handles IDs internally.
+An index is returned to the caller. SnakeECS bases all API calls on indexing rather than arbitrary IDs. The library handles IDs internally.
 To retrieve the version of an entity, you may call :
 ```C++
 auto version = world.to_version(entity);
