@@ -11,11 +11,13 @@ Entity-Component-Systems are designed with performance in mind, especially for r
 ### **_Policy-based design_**
 
 #### @Snek [configuration policy]
-A configuration policy is just a configuration for your world. The policy takes three template arguments.
+A configuration policy is just a configuration for your world. The policy is composed of 5 different template parameters.
 
-- entity type    : an integral type (u32, u64) for your entity
-- component list : a type list of all the components needed for your world
-- world allocator: how the internal storage of this world should be allocated.
+- entity type     : an integral type (u32, u64) for your entity
+- component list  : a type list of all the components needed for your world
+- world allocator : how the internal storage of this world should be allocated. (defaulted to std::allocator<entity_type>)
+- tag type        : an enumerable list of constants for different entity tags 
+- policy tag type : a tag that distinguishes this policy from others (defaulted to snek::snek_main_policy_tag)
 ```c++
 //assuming we have this set of components (a, b, c, d)
 using component_types = snek::component_list<component_a, component_b, component_c, component_d>;
@@ -73,12 +75,20 @@ void update(float dt) {
 }
 ```
 However, there is one problem: what if both worlds share the same set of components...?
-In a future version of Snek, there will be policy tags that may distinguish between two different worlds. The static constraints may look something like this :
+
+### **_Policy Tags_**
+The world policy takes a policy tag as its final template argument (defaulted to snek::snek_main_policy_tag). This argument must derive from snek::policy_tag
 ```c++
- if constexpr(Policy::is_valid_component_set<particle, rigidbody>() && Policy::tag::TAG_MENU) {
+  struct game_policy_tag : public snek::policy_tag {};
+  struct menu_policy_tag : public snek::policy_tag {};
+```
+and may be used to distinguish different policies in our unified system.
+
+```c++
+ if constexpr(Policy::is_valid_component_set<particle, rigidbody>() && Policy::is_tagged<menu_policy_tag>()) {
    //handle menu particle system
  }
- if constexpr(Policy::is_valid_component_set<particle, rigidbody() && Policy::tag::TAG_GAME) {
+ if constexpr(Policy::is_valid_component_set<particle, rigidbody>() && Policy::is_tagged<game_policy_tag>()) {
    //handle game particle system
  }
 ```
