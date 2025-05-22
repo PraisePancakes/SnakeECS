@@ -22,6 +22,66 @@ using component_types = snek::component_list<component_a, component_b, component
 using configuration_policy = snek::world_policy<std::uint64_t, component_types, std::allocator<std::uint64_t>>;
 ```
 Since our components are explicitly injected via the policy, we don't have to worry about any runtime overhead with dynamic component types.
+### **_Unified Policy Systems_**
+The motive of the policy-based design allows for static unified systems based on policy constraints. Snek utilizes multi-world applications, alluding to the separation of concerns of each world.
+For instance, say we have two unique states of our application, Game state and Menu state. Each state has its world of entities that don't necessarily relate to the other's entities but may implement shared components differently.
+```c++
+snek::world<menu_configuration_policy> menu_world;
+``` 
+and 
+```c++
+snek::world<game_configuration_policy> game_world;
+```
+Let's say both states incorporate a particle system, but the game state may incorporate particles relative to rigid bodies.
+```c++
+using game_component_types = snek::component_list<particle, rigidbody>;
+using game_configuration_policy = snek::world_policy<std::uint64_t, game_component_types, std::allocator<std::uint64_t>>;
+
+using menu_component_types = snek::component_list<particle>;
+using menu_configuration_policy = snek::world_policy<std::uint64_t, menu_component_types, std::allocator<std::uint64_t>>;
+
+```
+We can create one system that handles both of these cases through static policy constraints :
+```c++
+
+template<typename Policy>
+class ParticleSystem {
+  snek::world<Policy>& particle_world;
+
+void update_particle_with_rigidbody() {
+ std::cout << "updating particles relative to rigidbody" << std::endl;
+};
+void update_menu_particles() {
+ std::cout << "updating particles in menu" << std::endl;
+};
+
+public:
+ ParticleSystem(snek::world<Policy>& w) : particle_world(w) {};
+
+void update(float dt) {
+//game policy constraint
+ if constexpr(Policy::is_valid_component_set<particle, rigidbody>()) {
+  update_particle_with_rigidbody();
+ }
+//constraint menu policy constraint
+ if constexpr(Policy::is_valid_component<particle>()) {
+  update_menu_particles();
+ }
+}
+ ~ParicleSystem() {};  
+
+}
+```
+However, there is one problem: what if both worlds share the same set of components...?
+In a future version of Snek, there will be policy tags that may distinguish between two different worlds. The static constraints may look something like this :
+```c++
+ if constexpr(Policy::is_valid_component_set<particle, rigidbody>() && Policy::tag::TAG_MENU) {
+   //handle menu particle system
+ }
+ if constexpr(Policy::is_valid_component_set<particle, rigidbody() && Policy::tag::TAG_GAME) {
+   //handle game particle system
+ }
+```
 
 ## **_Usage/Examples_**
 
