@@ -24,17 +24,26 @@ namespace snek
 
     }
 
-    template <typename EntityT, typename ComponentList, typename AllocatorT, typename TagT>
+    struct policy_tag
+    {
+    };
+
+    struct snek_main_policy_tag : public policy_tag
+    {
+    };
+
+    template <typename EntityT, typename ComponentList, typename AllocatorT, typename EntityTag, typename PolicyTag>
     struct world_policy;
 
-    template <typename EntityT, typename ComponentList, typename AllocatorT = std::allocator<EntityT>, typename TagT>
+    template <typename EntityT, typename ComponentList, typename AllocatorT = std::allocator<EntityT>, typename EntityTag, typename PolicyTag = snek_main_policy_tag>
     struct world_policy
     {
 
-        using this_type = world_policy<EntityT, ComponentList, AllocatorT, TagT>;
+        using this_type = world_policy<EntityT, ComponentList, AllocatorT, EntityTag, PolicyTag>;
         using component_list = ComponentList;
         using allocator_type = AllocatorT;
-        using tag_type = TagT;
+        using tag_type = EntityTag;
+        using policy_tag = PolicyTag;
         using traits = entity::entity_traits<EntityT>;
 
         using entity_type = traits::entity_type;
@@ -43,11 +52,12 @@ namespace snek
         static constexpr auto max_version = std::numeric_limits<version_type>::max();
         static constexpr auto tombstone_v = snek::traits::tombstone_t<entity_type>::null_v;
 
-        static_assert(std::is_enum_v<TagT> || std::is_integral_v<TagT>, "TagT must be an enumurable or enum type");
+        static_assert(std::is_enum_v<EntityTag> || std::is_integral_v<EntityTag>, "EntityTag must be an enumurable or enum type");
         static_assert(snek::entity::is_entity_type<EntityT>::value, "EntityT must meet following type requirements : uint64_t , uint32_t");
         static_assert(snek::traits::type_is_allocator<AllocatorT>::value, "AllocatorT must meet allocator requirements");
         static_assert(snek::traits::is_type_list<ComponentList>::value, "ComponentList must meet the component type list requirements");
         static_assert(component_list::size <= component_list::list_size, "ComponentList size must be less than required list size criteria");
+        static_assert(std::is_base_of_v<snek::policy_tag, PolicyTag>, "PolicyTag must derive from snek::policy_tag");
 
         template <typename C>
         [[nodiscard]] static constexpr size_t get_component_type_id()
@@ -72,7 +82,7 @@ namespace snek
         {
             // get higher bit representation of entity
             return (id >> version_size);
-        };
+        }
 
         [[nodiscard]] static entity_type to_version(entity_type id)
         {
@@ -91,7 +101,7 @@ namespace snek
             auto hi = to_entity(id);
             hi |= tombstone_v;
             id = (hi << version_size | (lo));
-        };
+        }
 
         static void increment_version(entity_type &id)
         {
@@ -101,7 +111,7 @@ namespace snek
             auto hi = to_entity(id);
 
             id = (hi << version_size | (++lo));
-        };
+        }
 
         static inline entity_type generate_entity_id() noexcept
         {
@@ -109,7 +119,13 @@ namespace snek
             entity_type old = new_id;
             new_id++;
             return (old <<= version_size);
-        };
+        }
+
+        template <typename T>
+        constexpr static bool is_tagged()
+        {
+            return std::is_same_v<T, PolicyTag>;
+        }
     };
 
     template <typename... Cs>

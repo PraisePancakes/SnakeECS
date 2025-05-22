@@ -41,6 +41,7 @@ namespace snek::test_config
         PLAYER,
         ENEMY
     };
+
     // config policy
     //@params
     // #ENTITY_TYPE

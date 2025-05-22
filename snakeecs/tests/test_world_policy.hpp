@@ -17,12 +17,18 @@ class not_registered_component
 // NonListComponent is not a part of the configuration policy therefore it is not a valid registered component :
 // refer to snakeecs/config/configuration_policy.hpp specifically config::test_config::component_types.
 
+struct different_policy_tag : public snek::policy_tag
+{
+};
+
 void TEST_STATIC_CONFIG_POLICY()
 {
     static_assert(!configuration_policy::is_valid_component<not_registered_component>());
     static_assert(configuration_policy::is_valid_component<component_a>());
     static_assert(configuration_policy::is_valid_component<component_b>());
     static_assert(!configuration_policy::is_valid_component_set<component_a, component_b, not_registered_component>());
+    static_assert(!configuration_policy::is_tagged<different_policy_tag>(), "not different tag");
+    static_assert(configuration_policy::is_tagged<snek::snek_main_policy_tag>(), "tagged main policy");
 }
 
 #include <map>
