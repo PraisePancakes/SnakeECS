@@ -15,7 +15,6 @@ namespace snek::storage
         virtual bool contains(size_t id) const noexcept = 0;
         virtual size_t index(size_t id) const noexcept = 0;
         virtual std::vector<size_t> get_dense() const noexcept = 0;
-
         virtual void clear() = 0;
         virtual void remove(size_t id) = 0;
         virtual ~polymorphic_sparse_set() {};
@@ -106,6 +105,7 @@ namespace snek::storage
             std::swap(_dense.back(), _dense[_sparse[elem]]);
             std::swap(_sparse[last], _sparse[elem]);
             _dense.pop_back();
+            _packed.pop_back();
         };
         void clear() override
         {

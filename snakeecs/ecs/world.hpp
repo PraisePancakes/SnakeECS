@@ -32,7 +32,7 @@ namespace snek
         std::queue<entity_type> entity_store;
         std::vector<entity_type, allocator_type> entities;
         std::vector<snek::storage::polymorphic_sparse_set *> _component_pools;
-        std::unordered_map<underlying_tag_type, std::vector<entity_type>> _tagged_entities;
+        std::unordered_map<underlying_tag_type, snek::storage::sparse_set<entity_type>> _tagged_entities;
 
         allocator_type alloc;
 
@@ -62,7 +62,7 @@ namespace snek
             }
 
             entities.push_back(id);
-            _tagged_entities[-1].push_back(world_policy::to_entity(id));
+            _tagged_entities[-1].insert(world_policy::to_entity(id), world_policy::to_entity(id));
 
             return world_policy::to_entity(id);
         };
@@ -89,7 +89,7 @@ namespace snek
                 // if its empty then no choice but to continue the ring of id's so back to 0 we go
             }
             entities.push_back(id);
-            _tagged_entities[tag].push_back(world_policy::to_entity(id));
+            _tagged_entities[tag].insert(world_policy::to_entity(id), world_policy::to_entity(id));
 
             return world_policy::to_entity(id); // return index of entity
         };
@@ -155,13 +155,12 @@ namespace snek
 
         std::vector<entity_type> get_tagged_entities(underlying_tag_type tag)
         {
-            return this->_tagged_entities[tag];
+            return std::vector<entity_type>(this->_tagged_entities[tag].begin(), this->_tagged_entities[tag].end());
         }
 
         template <typename C, typename... Args>
         C &bind(entity_type e, Args &&...args)
         {
-
             SNEK_ASSERT(world_policy::template is_valid_component<C>(), "C must be a registered component. ");
             C *component = new C(std::forward<Args>(args)...);
             size_t c_id = world_policy::template get_component_type_id<C>();
@@ -215,6 +214,14 @@ namespace snek
 
         void kill(entity_type e)
         {
+            for (auto &ss : _tagged_entities)
+            {
+                if (ss.second.contains(e))
+                {
+                    ss.second.remove(e);
+                }
+            }
+
             world_policy::increment_version(entities[e]);
             entity_store.push(entities[e]);
             world_policy::to_tombstone(entities[e]); // converts entity bits to tombstone, leaves version untouched
